@@ -964,6 +964,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <span class="slider-val" id="speedVal">10 km/h</span>
       </div>
     </div>
+
+    <button class="refresh-btn" id="historyToggle" style="margin-top:14px;">▾ veure vent per hores (48h)</button>
+    <div id="historyPanel" style="display:none; margin-top:10px; max-height:220px; overflow-y:auto; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#C8DCE4;"></div>
   </div>
 
   <div class="map-section">
@@ -1064,7 +1067,9 @@ function computeAccumulatedRisk(beach){
   let acc = 0;
   WIND_HISTORY.forEach(h => {
     const input = computeRisk(h.dir, h.speed, beach);
-    acc = acc*DECAY_PER_HOUR + input*(1-DECAY_PER_HOUR);
+    // Jump straight up to a strong hour's score (attack), otherwise let the
+    // previous peak fade out gradually (decay) rather than averaging it away.
+    acc = Math.max(input, acc*DECAY_PER_HOUR);
   });
   return acc;
 }
@@ -1304,6 +1309,7 @@ async function loadWind(retries){
       for (let i=0; i<data.hourly.time.length; i++){
         if (data.hourly.time[i] <= nowTime){
           WIND_HISTORY.push({
+            time: data.hourly.time[i],
             dir: data.hourly.wind_direction_10m[i],
             speed: data.hourly.wind_speed_10m[i]
           });
@@ -1315,6 +1321,7 @@ async function loadWind(retries){
     updateCompassUI();
     renderFilters();
     renderList();
+    renderHistoryPanel();
   }catch(e){
     if (retries > 0){
       setTimeout(()=>loadWind(retries-1), 1200);
@@ -1327,6 +1334,28 @@ async function loadWind(retries){
 }
 
 document.getElementById("retryBtn").addEventListener("click", ()=> loadWind(2));
+document.getElementById("historyToggle").addEventListener("click", ()=>{
+  const panel = document.getElementById("historyPanel");
+  const btn = document.getElementById("historyToggle");
+  const showing = panel.style.display !== "none";
+  panel.style.display = showing ? "none" : "block";
+  btn.textContent = showing ? "▾ veure vent per hores (48h)" : "▴ amagar vent per hores";
+});
+
+function renderHistoryPanel(){
+  const panel = document.getElementById("historyPanel");
+  if (!WIND_HISTORY.length){
+    panel.innerHTML = "sense dades històriques (mode manual)";
+    return;
+  }
+  // Most recent first, so what matters most is at the top.
+  const rows = [...WIND_HISTORY].reverse().map(h => {
+    const hourLabel = h.time.replace("T", " ");
+    return `${hourLabel}  ·  ${toCardinal(h.dir)} ${String(Math.round(h.dir)).padStart(3,"0")}°  ·  ${Math.round(h.speed)} km/h`;
+  });
+  panel.innerHTML = rows.join("<br>");
+}
+
 initManualControls();
 try{ initMap(); }catch(e){ console.warn("Mapa no disponible:", e); }
 loadWind();
