@@ -1000,12 +1000,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
 // dir = compass degree the cove opens toward (the "onshore" direction for that cove)
 // sheltered = enclosed cove / narrow inlet / harbour-like, reduces jellyfish transport
 const BEACHES = [
-  {name:"Cala Morell", coast:"Nord · Tramuntana", dir:345, sheltered:false, lat:40.0074, lon:3.8776},
-  {name:"Cala en Brut", coast:"Nord · Tramuntana", dir:325, sheltered:false, lat:40.0068, lon:3.8650},
-  {name:"Cala del Pilar", coast:"Nord · Tramuntana", dir:350, sheltered:false, lat:39.9975, lon:3.9430},
-  {name:"Cala Carbó", coast:"Nord-oest", dir:330, sheltered:false, lat:40.0060, lon:3.9050},
-  {name:"Algaiarens (Cala des Tancats)", coast:"Nord-oest", dir:315, sheltered:false, lat:40.0068, lon:3.9160},
-  {name:"Cala des Talaier", coast:"Nord-oest", dir:310, sheltered:false, lat:40.0030, lon:3.9200},
+  {name:"Cala Morell", coast:"Nord · Tramuntana", dir:345, sheltered:false, lat:40.0509, lon:3.8838},
+  {name:"Cala en Brut", coast:"Nord · Tramuntana", dir:325, sheltered:false, lat:40.0480, lon:3.8620},
+  {name:"Cala Carbó", coast:"Nord-oest", dir:330, sheltered:false, lat:40.0540, lon:3.8870},
+  {name:"Algaiarens (Cala des Tancats)", coast:"Nord-oest", dir:315, sheltered:false, lat:40.0570, lon:3.8990},
+  {name:"Cala des Talaier", coast:"Nord-oest", dir:310, sheltered:false, lat:40.0555, lon:3.9040},
   {name:"Sa Farola (Cala des Frares)", coast:"Port de Ciutadella", dir:260, sheltered:true, lat:40.0007, lon:3.8375},
   {name:"Cala des Degollador (Platja Gran)", coast:"Port de Ciutadella", dir:255, sheltered:true, lat:39.9990, lon:3.8375},
   {name:"Cala'n Forcat", coast:"Oest · urbanitzacions", dir:255, sheltered:false, lat:40.0010, lon:3.8480},
@@ -1051,10 +1050,23 @@ function computeRisk(windDir, windSpeed, beach){
   const diff = angDiff(windDir, beach.dir);
   const onshoreFactor = Math.max(0, 1 - diff/150);
   const speedFactor = Math.min(1, windSpeed/22);
-  let score = onshoreFactor * (0.35 + 0.65*speedFactor);
+  let score = onshoreFactor * speedFactor;
   if (beach.sheltered) score *= 0.55;
-  if (windSpeed < 5) score *= 0.35;
   return score;
+}
+
+// Leaky-integrator: each hour's push toward the beach gets folded in, and past
+// hours fade out gradually (half-life ~30h) instead of vanishing the instant
+// the wind drops. This is what lets "it blew onshore yesterday" still count today.
+const DECAY_PER_HOUR = Math.pow(0.5, 1/30);
+
+function computeAccumulatedRisk(beach){
+  let acc = 0;
+  WIND_HISTORY.forEach(h => {
+    const input = computeRisk(h.dir, h.speed, beach);
+    acc = acc*DECAY_PER_HOUR + input*(1-DECAY_PER_HOUR);
+  });
+  return acc;
 }
 
 function riskLabel(score){
@@ -1069,7 +1081,7 @@ let map = null;
 const markers = {}; // beach.name -> leaflet layer
 
 function initMap(){
-  map = L.map('map', {scrollWheelZoom:false}).setView([39.965, 3.865], 12);
+  map = L.map('map', {scrollWheelZoom:false}).setView([39.985, 3.870], 11);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
     attribution: '&copy; OpenStreetMap contributors'
@@ -1088,13 +1100,23 @@ function initMap(){
   });
 }
 
+function beachRiskInfo(b){
+  // Live mode has hour-by-hour history -> accumulated score with memory.
+  // Manual mode only has one data point -> plain instant score.
+  const accScore = (MODE === "live" && WIND_HISTORY.length)
+    ? computeAccumulatedRisk(b)
+    : computeRisk(WIND.dir, WIND.speed, b);
+  const instantScore = computeRisk(WIND.dir, WIND.speed, b);
+  const diff = angDiff(WIND.dir, b.dir);
+  const risk = riskLabel(accScore);
+  const note = riskNote(accScore, instantScore, diff, WIND.speed, b);
+  return {score: accScore, risk, note};
+}
+
 function updateMapColors(){
   if (!map || !WIND) return;
   BEACHES.forEach(b => {
-    const score = computeRisk(WIND.dir, WIND.speed, b);
-    const diff = angDiff(WIND.dir, b.dir);
-    const risk = riskLabel(score);
-    const note = riskNote(score, diff, WIND.speed, b);
+    const {risk, note} = beachRiskInfo(b);
     const marker = markers[b.name];
     if (!marker) return;
     marker.setStyle({fillColor: MAP_COLORS[risk.cls]});
@@ -1106,15 +1128,26 @@ function updateMapColors(){
   });
 }
 
-function riskNote(score, diff, windSpeed, beach){
-  if (windSpeed < 5) return "Vent molt fluix: poc transport de medusa avui, sigui quina sigui la direcció.";
-  if (diff <= 45) {
-    return beach.sheltered
+function riskNote(accScore, instantScore, diff, windSpeed, beach){
+  const residual = accScore - instantScore; // how much is "leftover" from earlier hours
+  if (MODE === "manual"){
+    if (windSpeed < 5) return "Vent molt fluix: poc transport de medusa amb aquestes condicions.";
+    if (diff <= 45) return beach.sheltered
       ? "Vent de cara però la cala protegeix una mica; vigila igualment."
+      : "Vent bufa cap a la cala: condicions favorables a l'arribada de medusa.";
+    return "Vent de component terral o creuat: condicions poc favorables ara mateix.";
+  }
+  // live mode, with memory of the last ~40h
+  if (residual > 0.12 && instantScore < 0.2){
+    return "El vent d'ara és fluix, però hores/dies enrere ha bufat cap a la cala: encara pot quedar medusa arrossegada.";
+  }
+  if (diff <= 45 && windSpeed >= 5){
+    return beach.sheltered
+      ? "Vent de cara i cala poc protegida del tot; probable arribada de medusa."
       : "Vent bufa directament cap a la cala: condicions favorables a l'arribada de medusa.";
   }
-  if (diff <= 90) return "Vent parcialment de cara. Risc moderat, pot canviar durant el dia.";
-  return "Vent de component terral (surt cap al mar): condicions poc favorables a la medusa.";
+  if (accScore >= 0.25) return "Acumulació de vent de cara les últimes hores. Risc real encara que ara mateix amaini.";
+  return "Ni ara ni en les últimes hores hi ha hagut vent de cara sostingut cap a la cala.";
 }
 
 function miniCompassSVG(beachDir, windDir){
@@ -1133,6 +1166,7 @@ function miniCompassSVG(beachDir, windDir){
 
 let currentFilter = "Totes";
 let WIND = null;
+let WIND_HISTORY = []; // array of {dir, speed} for past ~40h, chronological (oldest first), live mode only
 let MODE = "live"; // "live" or "manual"
 
 function renderFilters(){
@@ -1157,10 +1191,7 @@ function renderList(){
   }
   const filtered = BEACHES.filter(b => currentFilter==="Totes" || b.coast===currentFilter);
   listEl.innerHTML = filtered.map(b=>{
-    const score = computeRisk(WIND.dir, WIND.speed, b);
-    const diff = angDiff(WIND.dir, b.dir);
-    const risk = riskLabel(score);
-    const note = riskNote(score, diff, WIND.speed, b);
+    const {risk, note} = beachRiskInfo(b);
     return `
     <div class="card">
       <div class="mini-compass">${miniCompassSVG(b.dir, WIND.dir)}</div>
@@ -1256,8 +1287,8 @@ async function loadWind(retries){
   document.getElementById("list").innerHTML = `<div class="loading"><div class="spinner"></div>Consultant el vent en temps real…</div>`;
   try{
     const res = await fetchWithTimeout(
-      "https://api.open-meteo.com/v1/forecast?latitude=40.00&longitude=3.84&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=Europe%2FMadrid",
-      6000
+      "https://api.open-meteo.com/v1/forecast?latitude=40.00&longitude=3.84&current=wind_speed_10m,wind_direction_10m&hourly=wind_speed_10m,wind_direction_10m&past_days=2&forecast_days=1&wind_speed_unit=kmh&timezone=Europe%2FMadrid",
+      7000
     );
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
@@ -1265,6 +1296,20 @@ async function loadWind(retries){
       speed: data.current.wind_speed_10m,
       dir: data.current.wind_direction_10m
     };
+    // Build the past-hours history (chronological, oldest first) up to the current hour,
+    // so the risk model can remember wind from earlier today/yesterday, not just this instant.
+    WIND_HISTORY = [];
+    if (data.hourly && data.hourly.time){
+      const nowTime = data.current.time;
+      for (let i=0; i<data.hourly.time.length; i++){
+        if (data.hourly.time[i] <= nowTime){
+          WIND_HISTORY.push({
+            dir: data.hourly.wind_direction_10m[i],
+            speed: data.hourly.wind_speed_10m[i]
+          });
+        }
+      }
+    }
     MODE = "live";
     document.getElementById("manualPanel").style.display = "none";
     updateCompassUI();
