@@ -986,7 +986,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   </div>
 
   <div class="footer">
-    Estimació basada en la direcció i força del vent (<span style="font-family:'JetBrains Mono',monospace">Open-Meteo</span>), no en observació directa de medusa. Un vent <b>terral</b> (cap al mar) redueix el risc; un vent de <b>component mar</b> l'incrementa. Confirma sempre amb la bandera o el personal de la platja.
+    Estimació basada en el vent i el <b>corrent marí superficial</b> (<span style="font-family:'JetBrains Mono',monospace">Open-Meteo</span>), no en observació directa de medusa. Un flux <b>terral</b> (cap al mar) redueix el risc; un flux de <b>component mar</b> l'incrementa. Confirma sempre amb la bandera o el personal de la platja.
   </div>
 </div>
 
@@ -1049,11 +1049,35 @@ function angDiff(a,b){
   return d > 180 ? 360 - d : d;
 }
 
-function computeRisk(windDir, windSpeed, beach){
+function windComponent(windDir, windSpeed, beach){
   const diff = angDiff(windDir, beach.dir);
   const onshoreFactor = Math.max(0, 1 - diff/150);
   const speedFactor = Math.min(1, windSpeed/22);
-  let score = onshoreFactor * speedFactor;
+  return onshoreFactor * speedFactor;
+}
+
+function currentComponent(curDir, curSpeedMs, beach){
+  if (curDir == null || curSpeedMs == null) return null;
+  const diff = angDiff(curDir, beach.dir);
+  const onshoreFactor = Math.max(0, 1 - diff/150);
+  // Coastal surface currents here are typically a few tenths of a m/s;
+  // ~0.35 m/s (~1.25 km/h) is already a fairly brisk local current.
+  const speedFactor = Math.min(1, curSpeedMs/0.35);
+  return onshoreFactor * speedFactor;
+}
+
+// Currents actually carry the jellyfish; wind mainly drags the surface layer.
+// Weight current higher, but keep wind meaningful since it's what builds the
+// current in the first place and matters for the last few cm of drift.
+const CURRENT_WEIGHT = 0.65;
+const WIND_WEIGHT = 0.35;
+
+function computeRisk(windDir, windSpeed, beach, curDir, curSpeed){
+  const wComp = windComponent(windDir, windSpeed, beach);
+  const cComp = currentComponent(curDir, curSpeed, beach);
+  let score = (cComp === null)
+    ? wComp
+    : (CURRENT_WEIGHT*cComp + WIND_WEIGHT*wComp);
   if (beach.sheltered) score *= 0.55;
   return score;
 }
@@ -1065,8 +1089,9 @@ const DECAY_PER_HOUR = Math.pow(0.5, 1/30);
 
 function computeAccumulatedRisk(beach){
   let acc = 0;
-  WIND_HISTORY.forEach(h => {
-    const input = computeRisk(h.dir, h.speed, beach);
+  WIND_HISTORY.forEach((h, i) => {
+    const c = CURRENT_HISTORY[i]; // may be undefined if marine fetch failed/misaligned
+    const input = computeRisk(h.dir, h.speed, beach, c ? c.dir : null, c ? c.speed : null);
     // Jump straight up to a strong hour's score (attack), otherwise let the
     // previous peak fade out gradually (decay) rather than averaging it away.
     acc = Math.max(input, acc*DECAY_PER_HOUR);
@@ -1086,12 +1111,13 @@ let map = null;
 const markers = {}; // beach.name -> leaflet layer
 
 function initMap(){
-  map = L.map('map', {scrollWheelZoom:false}).setView([39.985, 3.870], 11);
+  map = L.map('map', {scrollWheelZoom:false});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
+  const latLngs = [];
   BEACHES.forEach(b => {
     const marker = L.circleMarker([b.lat, b.lon], {
       radius: 9,
@@ -1102,16 +1128,19 @@ function initMap(){
     }).addTo(map);
     marker.bindPopup("");
     markers[b.name] = marker;
+    latLngs.push([b.lat, b.lon]);
   });
+  // Fit the view to every beach, whatever their spread, instead of a fixed guess.
+  map.fitBounds(latLngs, {padding: [22, 22]});
 }
 
 function beachRiskInfo(b){
   // Live mode has hour-by-hour history -> accumulated score with memory.
-  // Manual mode only has one data point -> plain instant score.
+  // Manual mode only has one data point -> plain instant score, wind-only.
   const accScore = (MODE === "live" && WIND_HISTORY.length)
     ? computeAccumulatedRisk(b)
     : computeRisk(WIND.dir, WIND.speed, b);
-  const instantScore = computeRisk(WIND.dir, WIND.speed, b);
+  const instantScore = computeRisk(WIND.dir, WIND.speed, b, CURRENT ? CURRENT.dir : null, CURRENT ? CURRENT.speed : null);
   const diff = angDiff(WIND.dir, b.dir);
   const risk = riskLabel(accScore);
   const note = riskNote(accScore, instantScore, diff, WIND.speed, b);
@@ -1172,6 +1201,8 @@ function miniCompassSVG(beachDir, windDir){
 let currentFilter = "Totes";
 let WIND = null;
 let WIND_HISTORY = []; // array of {dir, speed} for past ~40h, chronological (oldest first), live mode only
+let CURRENT = null; // ocean surface current: {dir, speed(m/s)}
+let CURRENT_HISTORY = []; // array of {dir, speed}, index-aligned with WIND_HISTORY
 let MODE = "live"; // "live" or "manual"
 
 function renderFilters(){
@@ -1220,10 +1251,14 @@ function updateCompassUI(){
   const modeTag = MODE === "manual"
     ? `<div class="mode-tag manual">vent manual</div>`
     : `<div class="mode-tag">vent en directe</div>`;
+  const currentLine = CURRENT
+    ? `<div class="cardinal" style="font-size:13px; color:#9FC2CF; margin-top:4px;">corrent: ${toCardinal(CURRENT.dir)} · ${CURRENT.speed.toFixed(2)} m/s</div>`
+    : "";
   document.getElementById("windReadout").innerHTML = `
     <div class="deg">${Math.round(WIND.speed)}<span class="unit"> km/h</span></div>
     <div class="label">vent actual</div>
     <div class="cardinal">${toCardinal(WIND.dir)} · ${Math.round(WIND.dir)}°</div>
+    ${currentLine}
     ${modeTag}
   `;
 }
@@ -1322,6 +1357,7 @@ async function loadWind(retries){
     renderFilters();
     renderList();
     renderHistoryPanel();
+    loadCurrent(); // best-effort; risk calc falls back to wind-only if this fails
   }catch(e){
     if (retries > 0){
       setTimeout(()=>loadWind(retries-1), 1200);
@@ -1330,6 +1366,41 @@ async function loadWind(retries){
     // Fall back to manual entry so the app stays usable
     document.getElementById("windReadout").innerHTML = `<div class="label">sense connexió — usa el vent manual ↓</div>`;
     setManualMode();
+  }
+}
+
+async function loadCurrent(){
+  try{
+    const res = await fetchWithTimeout(
+      "https://marine-api.open-meteo.com/v1/marine?latitude=40.00&longitude=3.84&current=ocean_current_velocity,ocean_current_direction&hourly=ocean_current_velocity,ocean_current_direction&past_days=2&forecast_days=1&timezone=Europe%2FMadrid",
+      7000
+    );
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    CURRENT = {
+      speed: data.current.ocean_current_velocity, // m/s
+      dir: data.current.ocean_current_direction
+    };
+    CURRENT_HISTORY = [];
+    if (data.hourly && data.hourly.time){
+      const nowTime = data.current.time;
+      for (let i=0; i<data.hourly.time.length; i++){
+        if (data.hourly.time[i] <= nowTime){
+          CURRENT_HISTORY.push({
+            time: data.hourly.time[i],
+            dir: data.hourly.ocean_current_direction[i],
+            speed: data.hourly.ocean_current_velocity[i]
+          });
+        }
+      }
+    }
+    updateCompassUI();
+    renderList();
+  }catch(e){
+    // No current data available (e.g. blocked network) — the app keeps working on wind alone.
+    CURRENT = null;
+    CURRENT_HISTORY = [];
+    console.warn("Corrent marí no disponible:", e);
   }
 }
 
