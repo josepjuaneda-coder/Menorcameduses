@@ -888,6 +888,24 @@ svg.leaflet-image-layer.leaflet-interactive path {
     margin-top:5px;
     font-family:'JetBrains Mono',monospace;
   }
+  .report-row{
+    display:flex; gap:8px; margin-top:10px;
+    padding-top:10px; border-top:1px solid rgba(201,168,118,0.2);
+  }
+  .report-btn{
+    flex:1;
+    font-family:'Work Sans',sans-serif; font-size:12px; font-weight:500;
+    padding:7px 8px; border-radius:10px; border:1.5px solid var(--mares);
+    background:#fff; color:var(--text-fosc); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:5px;
+  }
+  .report-btn.seen{border-color:var(--coral); color:var(--coral);}
+  .report-btn.clear{border-color:var(--aigua-fosc); color:var(--aigua-fosc);}
+  .report-btn:active{opacity:0.7;}
+  .report-note{
+    font-size:11px; color:var(--blau-mitjan); margin-top:7px;
+    font-family:'JetBrains Mono',monospace;
+  }
 
   /* FOOTER */
   .footer{
@@ -1007,20 +1025,20 @@ const BEACHES = [
   {name:"Cala Carbó", coast:"Nord-oest", dir:330, sheltered:false, lat:40.0540, lon:3.8870},
   {name:"Algaiarens (Cala des Tancats)", coast:"Nord-oest", dir:315, sheltered:false, lat:40.0570, lon:3.8990},
   {name:"Cala des Talaier", coast:"Nord-oest", dir:310, sheltered:false, lat:40.0555, lon:3.9040},
-  {name:"Sa Farola (Cala des Frares)", coast:"Port de Ciutadella", dir:260, sheltered:true, lat:40.0007, lon:3.8375},
-  {name:"Cala des Degollador (Platja Gran)", coast:"Port de Ciutadella", dir:255, sheltered:true, lat:39.9990, lon:3.8375},
-  {name:"Cala'n Forcat", coast:"Oest · urbanitzacions", dir:255, sheltered:false, lat:40.0010, lon:3.8480},
-  {name:"Cala en Brut", coast:"Oest · urbanitzacions", dir:255, sheltered:true, lat:40.0003, lon:3.8495},
-  {name:"Cala'n Blanes", coast:"Oest · urbanitzacions", dir:250, sheltered:false, lat:39.9975, lon:3.8520},
-  {name:"Los Delfines", coast:"Oest · urbanitzacions", dir:245, sheltered:false, lat:39.9930, lon:3.8460},
-  {name:"Sa Caleta d'en Gorries", coast:"Sud-oest", dir:230, sheltered:true, lat:39.9840, lon:3.8340},
-  {name:"Cala Santandria", coast:"Sud-oest", dir:220, sheltered:true, lat:39.9810, lon:3.8330},
-  {name:"Cala Blanca", coast:"Sud-oest", dir:230, sheltered:false, lat:39.9720, lon:3.8250},
-  {name:"s'Aigo Dolça", coast:"Sud-oest", dir:225, sheltered:false, lat:39.9680, lon:3.8210},
-  {name:"Cap d'Artrutx", coast:"Sud · punta", dir:200, sheltered:false, lat:39.9270, lon:3.8330},
-  {name:"Cala'n Bosch", coast:"Sud", dir:190, sheltered:true, lat:39.9290, lon:3.8340},
-  {name:"Son Xoriguer", coast:"Sud", dir:195, sheltered:false, lat:39.9260, lon:3.8460},
-  {name:"Cales Piques", coast:"Sud", dir:185, sheltered:false, lat:39.9270, lon:3.8280},
+  {name:"Sa Farola (far de Ciutadella)", coast:"Port de Ciutadella", dir:280, sheltered:true, lat:40.0028, lon:3.8240},
+  {name:"Cala des Degollador (Platja Gran)", coast:"Port de Ciutadella", dir:255, sheltered:true, lat:40.0000, lon:3.8280},
+  {name:"Cala en Brut", coast:"Oest · urbanitzacions", dir:255, sheltered:true, lat:40.0010, lon:3.8050},
+  {name:"Cala'n Forcat", coast:"Oest · urbanitzacions", dir:255, sheltered:false, lat:39.9995, lon:3.8011},
+  {name:"Cales Piques", coast:"Oest · urbanitzacions", dir:250, sheltered:false, lat:39.9985, lon:3.7960},
+  {name:"Los Delfines", coast:"Oest · urbanitzacions", dir:250, sheltered:false, lat:39.9975, lon:3.8030},
+  {name:"Cala'n Blanes", coast:"Oest · urbanitzacions", dir:245, sheltered:false, lat:39.9990, lon:3.8120},
+  {name:"Sa Caleta d'en Gorries", coast:"Sud-oest", dir:230, sheltered:true, lat:39.9740, lon:3.8380},
+  {name:"Cala Santandria", coast:"Sud-oest", dir:220, sheltered:true, lat:39.9794, lon:3.8403},
+  {name:"Cala Blanca", coast:"Sud-oest", dir:225, sheltered:false, lat:39.9686, lon:3.8364},
+  {name:"s'Aigo Dolça", coast:"Sud-oest", dir:220, sheltered:false, lat:39.9655, lon:3.8340},
+  {name:"Cap d'Artrutx", coast:"Sud · punta", dir:200, sheltered:false, lat:39.9210, lon:3.8330},
+  {name:"Cala'n Bosch", coast:"Sud", dir:190, sheltered:true, lat:39.9300, lon:3.8380},
+  {name:"Son Xoriguer", coast:"Sud", dir:195, sheltered:false, lat:39.9269, lon:3.8431},
   {name:"Son Saura (sud)", coast:"Sud", dir:175, sheltered:false, lat:39.9240, lon:3.8980},
   {name:"Cala es Talaier (sud)", coast:"Sud", dir:175, sheltered:false, lat:39.9270, lon:3.9350},
   {name:"Cala en Turqueta", coast:"Sud", dir:170, sheltered:false, lat:39.9280, lon:3.9550},
@@ -1134,6 +1152,49 @@ function initMap(){
   map.fitBounds(latLngs, {padding: [22, 22]});
 }
 
+// --- Reports (device-local only, via localStorage) ---
+const REPORTS_KEY = "aiguaneta_reports_v1";
+const REPORT_SEEN_WINDOW_H = 6;   // a "medusa vista" report boosts risk for this long
+const REPORT_CLEAR_WINDOW_H = 3;  // a "sense medusa" report softens risk, but fades faster
+
+function loadReports(){
+  try{
+    return JSON.parse(localStorage.getItem(REPORTS_KEY)) || {};
+  }catch(e){ return {}; }
+}
+function saveReports(reports){
+  try{ localStorage.setItem(REPORTS_KEY, JSON.stringify(reports)); }catch(e){}
+}
+function addReport(beachName, type){
+  const reports = loadReports();
+  if (!reports[beachName]) reports[beachName] = [];
+  reports[beachName].push({type, time: Date.now()});
+  // keep it small: only the last 10 reports per beach
+  reports[beachName] = reports[beachName].slice(-10);
+  saveReports(reports);
+  renderList();
+}
+function latestReport(beachName){
+  const reports = loadReports()[beachName];
+  if (!reports || !reports.length) return null;
+  return reports[reports.length - 1];
+}
+function hoursSince(timestamp){
+  return (Date.now() - timestamp) / (1000*60*60);
+}
+function reportInfo(beachName){
+  const r = latestReport(beachName);
+  if (!r) return null;
+  const h = hoursSince(r.time);
+  if (r.type === "seen" && h <= REPORT_SEEN_WINDOW_H) return {type:"seen", hours:h};
+  if (r.type === "clear" && h <= REPORT_CLEAR_WINDOW_H) return {type:"clear", hours:h};
+  return null;
+}
+function formatHoursAgo(h){
+  if (h < 1) return Math.round(h*60) + " min";
+  return Math.round(h*10)/10 + "h";
+}
+
 function beachRiskInfo(b){
   // Live mode has hour-by-hour history -> accumulated score with memory.
   // Manual mode only has one data point -> plain instant score, wind-only.
@@ -1142,9 +1203,20 @@ function beachRiskInfo(b){
     : computeRisk(WIND.dir, WIND.speed, b);
   const instantScore = computeRisk(WIND.dir, WIND.speed, b, CURRENT ? CURRENT.dir : null, CURRENT ? CURRENT.speed : null);
   const diff = angDiff(WIND.dir, b.dir);
-  const risk = riskLabel(accScore);
-  const note = riskNote(accScore, instantScore, diff, WIND.speed, b);
-  return {score: accScore, risk, note};
+  let note = riskNote(accScore, instantScore, diff, WIND.speed, b);
+  let risk = riskLabel(accScore);
+
+  // A recent user report is ground truth and overrides the model.
+  const rep = reportInfo(b.name);
+  if (rep && rep.type === "seen"){
+    risk = {cls:"alt", text:"ALT"};
+    note = `Algú ha reportat medusa fa ${formatHoursAgo(rep.hours)}.`;
+  } else if (rep && rep.type === "clear" && risk.cls !== "baix"){
+    // Soften but don't fully override a model that says risk — someone saying
+    // "no n'hi havia" an hour ago doesn't cancel a strong onshore push.
+    note += ` (Algú va reportar-hi sense medusa fa ${formatHoursAgo(rep.hours)}.)`;
+  }
+  return {score: accScore, risk, note, report: rep};
 }
 
 function updateMapColors(){
@@ -1227,7 +1299,11 @@ function renderList(){
   }
   const filtered = BEACHES.filter(b => currentFilter==="Totes" || b.coast===currentFilter);
   listEl.innerHTML = filtered.map(b=>{
-    const {risk, note} = beachRiskInfo(b);
+    const {risk, note, report} = beachRiskInfo(b);
+    const safeName = b.name.replace(/'/g, "\\'");
+    const reportNote = report
+      ? `<div class="report-note">${report.type === "seen" ? "🪼 reportat fa " + formatHoursAgo(report.hours) : "✅ net reportat fa " + formatHoursAgo(report.hours)}</div>`
+      : "";
     return `
     <div class="card">
       <div class="mini-compass">${miniCompassSVG(b.dir, WIND.dir)}</div>
@@ -1241,6 +1317,11 @@ function renderList(){
         </div>
         <div class="card-note">${note}</div>
         ${b.sheltered ? `<div class="sheltered-tag">cala tancada · exposició reduïda</div>` : ``}
+        ${reportNote}
+        <div class="report-row">
+          <button class="report-btn seen" onclick="addReport('${safeName}','seen')">🪼 He vist medusa</button>
+          <button class="report-btn clear" onclick="addReport('${safeName}','clear')">✅ Sense medusa</button>
+        </div>
       </div>
     </div>`;
   }).join("");
