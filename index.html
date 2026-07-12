@@ -1275,6 +1275,7 @@ let WIND = null;
 let WIND_HISTORY = []; // array of {dir, speed} for past ~40h, chronological (oldest first), live mode only
 let CURRENT = null; // ocean surface current: {dir, speed(m/s)}
 let CURRENT_HISTORY = []; // array of {dir, speed}, index-aligned with WIND_HISTORY
+let SEA_TEMP = null; // °C, informational only
 let MODE = "live"; // "live" or "manual"
 
 function renderFilters(){
@@ -1327,6 +1328,15 @@ function renderList(){
   }).join("");
 }
 
+function seaTempWarning(temp){
+  if (temp == null) return "";
+  let msg;
+  if (temp >= 25) msg = "aigua càlida · temporada alta de medusa";
+  else if (temp >= 22) msg = "aigua temperada · temporada mitjana de medusa";
+  else msg = "aigua freda · temporada baixa de medusa";
+  return `<div class="mode-tag" style="background:rgba(242,179,61,0.18); color:#F2C176; margin-top:6px;">🌡️ ${temp.toFixed(1)}°C · ${msg}</div>`;
+}
+
 function updateCompassUI(){
   document.getElementById("needle").style.transform = `rotate(${WIND.dir}deg)`;
   const modeTag = MODE === "manual"
@@ -1341,6 +1351,7 @@ function updateCompassUI(){
     <div class="cardinal">${toCardinal(WIND.dir)} · ${Math.round(WIND.dir)}°</div>
     ${currentLine}
     ${modeTag}
+    ${seaTempWarning(SEA_TEMP)}
   `;
 }
 
@@ -1453,7 +1464,7 @@ async function loadWind(retries){
 async function loadCurrent(){
   try{
     const res = await fetchWithTimeout(
-      "https://marine-api.open-meteo.com/v1/marine?latitude=40.00&longitude=3.84&current=ocean_current_velocity,ocean_current_direction&hourly=ocean_current_velocity,ocean_current_direction&past_days=2&forecast_days=1&timezone=Europe%2FMadrid",
+      "https://marine-api.open-meteo.com/v1/marine?latitude=40.00&longitude=3.84&current=ocean_current_velocity,ocean_current_direction,sea_surface_temperature&hourly=ocean_current_velocity,ocean_current_direction&past_days=2&forecast_days=1&timezone=Europe%2FMadrid",
       7000
     );
     if (!res.ok) throw new Error("HTTP " + res.status);
@@ -1462,6 +1473,7 @@ async function loadCurrent(){
       speed: data.current.ocean_current_velocity, // m/s
       dir: data.current.ocean_current_direction
     };
+    SEA_TEMP = data.current.sea_surface_temperature; // °C — informational only, doesn't affect per-beach risk
     CURRENT_HISTORY = [];
     if (data.hourly && data.hourly.time){
       const nowTime = data.current.time;
