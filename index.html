@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0A3D52">
-<title>Aigua Neta · Medusas Ciutadella</title>
+<title>Aigua Neta · Medusas Menorca</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -940,11 +940,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   <div class="hero">
     <div class="eyebrow">
-      <span>Ciutadella · previsió local</span>
+      <span>Menorca · previsió local</span>
       <button class="refresh-btn" id="retryBtn">↻ actualitzar</button>
     </div>
     <h1>Aigua Neta</h1>
-    <div class="sub">Risc de medusa a les cales de Ciutadella segons la direcció i força del vent.</div>
+    <div class="sub">Risc de medusa a les cales de Menorca segons la direcció i força del vent.</div>
 
     <div class="compass-wrap" id="compassWrap">
       <div class="compass">
@@ -1017,33 +1017,83 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
 </script>
 <script>
-// Beaches around Ciutadella de Menorca, roughly north to south along the coast.
+// Beaches across all of Menorca, grouped by municipality (west to east).
+// "coast" holds the municipality name — filters and cards read straight from it.
 // dir = compass degree the cove opens toward (the "onshore" direction for that cove)
 // sheltered = enclosed cove / narrow inlet / harbour-like, reduces jellyfish transport
 const BEACHES = [
-  {name:"Cala Morell", coast:"Nord · Tramuntana", dir:20, sheltered:false, lat:40.0509, lon:3.8838},
-  {name:"Cala Carbó", coast:"Nord-oest", dir:330, sheltered:false, lat:40.0540, lon:3.8870},
-  {name:"Algaiarens (Cala des Tancats)", coast:"Nord-oest", dir:315, sheltered:false, lat:40.0570, lon:3.8990},
-  {name:"Cala des Talaier", coast:"Nord-oest", dir:310, sheltered:false, lat:40.0555, lon:3.9040},
-  {name:"Sa Farola (far de Ciutadella)", coast:"Port de Ciutadella", dir:280, sheltered:true, lat:40.0028, lon:3.8240},
-  {name:"Cala des Degollador (Platja Gran)", coast:"Port de Ciutadella", dir:255, sheltered:true, lat:40.0000, lon:3.8280},
-  {name:"Cala en Brut", coast:"Oest · urbanitzacions", dir:255, sheltered:true, lat:40.0010, lon:3.8050},
-  {name:"Cala'n Forcat", coast:"Oest · urbanitzacions", dir:255, sheltered:false, lat:39.9995, lon:3.8011},
-  {name:"Cales Piques", coast:"Oest · urbanitzacions", dir:250, sheltered:false, lat:39.9985, lon:3.7960},
-  {name:"Los Delfines", coast:"Oest · urbanitzacions", dir:250, sheltered:false, lat:39.9975, lon:3.8030},
-  {name:"Cala'n Blanes", coast:"Oest · urbanitzacions", dir:245, sheltered:false, lat:39.9990, lon:3.8120},
-  {name:"Sa Caleta d'en Gorries", coast:"Sud-oest", dir:230, sheltered:true, lat:39.9740, lon:3.8380},
-  {name:"Cala Santandria", coast:"Sud-oest", dir:220, sheltered:true, lat:39.9794, lon:3.8403},
-  {name:"Cala Blanca", coast:"Sud-oest", dir:225, sheltered:false, lat:39.9686, lon:3.8364},
-  {name:"s'Aigo Dolça", coast:"Sud-oest", dir:220, sheltered:false, lat:39.9655, lon:3.8340},
-  {name:"Cap d'Artrutx", coast:"Sud · punta", dir:200, sheltered:false, lat:39.9210, lon:3.8330},
-  {name:"Cala'n Bosch", coast:"Sud", dir:190, sheltered:true, lat:39.9300, lon:3.8380},
-  {name:"Son Xoriguer", coast:"Sud", dir:195, sheltered:false, lat:39.9269, lon:3.8431},
-  {name:"Son Saura (sud)", coast:"Sud", dir:175, sheltered:false, lat:39.9240, lon:3.8980},
-  {name:"Cala es Talaier (sud)", coast:"Sud", dir:175, sheltered:false, lat:39.9270, lon:3.9350},
-  {name:"Cala en Turqueta", coast:"Sud", dir:170, sheltered:false, lat:39.9280, lon:3.9550},
-  {name:"Cala Macarella", coast:"Sud", dir:175, sheltered:false, lat:39.9300, lon:3.9730},
-  {name:"Cala Macarelleta", coast:"Sud", dir:175, sheltered:false, lat:39.9280, lon:3.9760},
+  // --- Ciutadella ---
+  {name:"Cala Morell", coast:"Ciutadella", dir:20, sheltered:false, lat:40.0509, lon:3.8838},
+  {name:"Cala Carbó", coast:"Ciutadella", dir:330, sheltered:false, lat:40.0540, lon:3.8870},
+  {name:"Algaiarens (Cala des Tancats)", coast:"Ciutadella", dir:315, sheltered:false, lat:40.0570, lon:3.8990},
+  {name:"Cala des Talaier", coast:"Ciutadella", dir:310, sheltered:false, lat:40.0555, lon:3.9040},
+  {name:"Cala del Pilar", coast:"Ciutadella", dir:350, sheltered:false, lat:39.9980, lon:3.9450},
+  {name:"Sa Farola (far de Ciutadella)", coast:"Ciutadella", dir:280, sheltered:true, lat:40.0028, lon:3.8240},
+  {name:"Cala des Degollador (Platja Gran)", coast:"Ciutadella", dir:255, sheltered:true, lat:40.0000, lon:3.8280},
+  {name:"Cala en Brut", coast:"Ciutadella", dir:255, sheltered:true, lat:40.0010, lon:3.8050},
+  {name:"Cala'n Forcat", coast:"Ciutadella", dir:255, sheltered:false, lat:39.9995, lon:3.8011},
+  {name:"Cales Piques", coast:"Ciutadella", dir:250, sheltered:false, lat:39.9985, lon:3.7960},
+  {name:"Los Delfines", coast:"Ciutadella", dir:250, sheltered:false, lat:39.9975, lon:3.8030},
+  {name:"Cala'n Blanes", coast:"Ciutadella", dir:245, sheltered:false, lat:39.9990, lon:3.8120},
+  {name:"Sa Caleta d'en Gorries", coast:"Ciutadella", dir:230, sheltered:true, lat:39.9740, lon:3.8380},
+  {name:"Cala Santandria", coast:"Ciutadella", dir:220, sheltered:true, lat:39.9794, lon:3.8403},
+  {name:"Cala Blanca", coast:"Ciutadella", dir:225, sheltered:false, lat:39.9686, lon:3.8364},
+  {name:"s'Aigo Dolça", coast:"Ciutadella", dir:220, sheltered:false, lat:39.9655, lon:3.8340},
+  {name:"Cap d'Artrutx", coast:"Ciutadella", dir:200, sheltered:false, lat:39.9210, lon:3.8330},
+  {name:"Cala'n Bosch", coast:"Ciutadella", dir:190, sheltered:true, lat:39.9300, lon:3.8380},
+  {name:"Son Xoriguer", coast:"Ciutadella", dir:195, sheltered:false, lat:39.9269, lon:3.8431},
+  {name:"Son Saura (sud)", coast:"Ciutadella", dir:175, sheltered:false, lat:39.9240, lon:3.8980},
+  {name:"Cala es Talaier (sud)", coast:"Ciutadella", dir:175, sheltered:false, lat:39.9270, lon:3.9350},
+  {name:"Cala en Turqueta", coast:"Ciutadella", dir:170, sheltered:false, lat:39.9280, lon:3.9550},
+  {name:"Cala Macarella", coast:"Ciutadella", dir:175, sheltered:false, lat:39.9300, lon:3.9730},
+  {name:"Cala Macarelleta", coast:"Ciutadella", dir:175, sheltered:false, lat:39.9280, lon:3.9760},
+
+  // --- Ferreries ---
+  {name:"Cala Trebalúger", coast:"Ferreries", dir:175, sheltered:false, lat:39.9260, lon:3.9770},
+  {name:"Cala Mitjana", coast:"Ferreries", dir:175, sheltered:false, lat:39.9280, lon:3.9885},
+  {name:"Cala Mitjaneta", coast:"Ferreries", dir:175, sheltered:true, lat:39.9270, lon:3.9895},
+  {name:"Cala Galdana", coast:"Ferreries", dir:175, sheltered:true, lat:39.9330, lon:3.9650},
+
+  // --- Es Migjorn Gran ---
+  {name:"Cala Fustam", coast:"Es Migjorn Gran", dir:175, sheltered:false, lat:39.9220, lon:4.0180},
+  {name:"Cala Escorxada", coast:"Es Migjorn Gran", dir:175, sheltered:false, lat:39.9210, lon:4.0230},
+  {name:"Binigaus", coast:"Es Migjorn Gran", dir:175, sheltered:false, lat:39.9190, lon:4.0350},
+  {name:"Sant Adeodat", coast:"Es Migjorn Gran", dir:175, sheltered:false, lat:39.9200, lon:4.0450},
+  {name:"Sant Tomàs", coast:"Es Migjorn Gran", dir:175, sheltered:false, lat:39.9210, lon:4.0480},
+
+  // --- Alaior ---
+  {name:"Son Bou", coast:"Alaior", dir:175, sheltered:false, lat:39.9160, lon:4.0980},
+  {name:"Cala en Porter", coast:"Alaior", dir:175, sheltered:false, lat:39.8970, lon:4.1420},
+  {name:"Cales Coves", coast:"Alaior", dir:165, sheltered:true, lat:39.8955, lon:4.1600},
+
+  // --- Maó ---
+  {name:"Es Canutells", coast:"Maó", dir:165, sheltered:false, lat:39.8850, lon:4.1850},
+  {name:"Cala Binidalí", coast:"Maó", dir:165, sheltered:false, lat:39.8720, lon:4.2500},
+  {name:"Cala es Murtar", coast:"Maó", dir:90, sheltered:false, lat:39.9150, lon:4.2950},
+  {name:"Cala Mesquida", coast:"Maó", dir:60, sheltered:false, lat:39.9280, lon:4.2870},
+  {name:"Cala Morella Nou", coast:"Maó", dir:70, sheltered:false, lat:39.9450, lon:4.2650},
+  {name:"Es Grau", coast:"Maó", dir:65, sheltered:true, lat:39.9510, lon:4.2590},
+
+  // --- Es Castell ---
+  {name:"Cala Sant Esteve", coast:"Es Castell", dir:130, sheltered:true, lat:39.8720, lon:4.2870},
+
+  // --- Sant Lluís ---
+  {name:"Cala Rafalet", coast:"Sant Lluís", dir:130, sheltered:true, lat:39.8420, lon:4.2930},
+  {name:"S'Algar", coast:"Sant Lluís", dir:130, sheltered:false, lat:39.8460, lon:4.2950},
+  {name:"Cala Alcaufar", coast:"Sant Lluís", dir:140, sheltered:true, lat:39.8390, lon:4.2900},
+  {name:"Punta Prima", coast:"Sant Lluís", dir:150, sheltered:false, lat:39.8270, lon:4.2830},
+  {name:"Biniancolla", coast:"Sant Lluís", dir:155, sheltered:false, lat:39.8330, lon:4.2760},
+  {name:"Cala Torret", coast:"Sant Lluís", dir:155, sheltered:false, lat:39.8300, lon:4.2750},
+  {name:"Binibeca", coast:"Sant Lluís", dir:160, sheltered:false, lat:39.8360, lon:4.2680},
+  {name:"Binisafúller", coast:"Sant Lluís", dir:165, sheltered:false, lat:39.8330, lon:4.2600},
+
+  // --- Es Mercadal (incl. Fornells) ---
+  {name:"Cavalleria", coast:"Es Mercadal", dir:10, sheltered:false, lat:40.0910, lon:4.0620},
+  {name:"Binimel·là", coast:"Es Mercadal", dir:350, sheltered:false, lat:40.0150, lon:3.9940},
+  {name:"Cala Pregonda", coast:"Es Mercadal", dir:355, sheltered:false, lat:40.0160, lon:4.0000},
+  {name:"Cala Tirant", coast:"Es Mercadal", dir:350, sheltered:false, lat:40.0330, lon:4.1350},
+  {name:"Arenal d'en Castell", coast:"Es Mercadal", dir:40, sheltered:true, lat:40.0080, lon:4.1630},
+  {name:"Son Parc (Arenal de Son Saura Nord)", coast:"Es Mercadal", dir:20, sheltered:false, lat:40.0170, lon:4.1830},
 ];
 
 // Traditional Mediterranean/Catalan wind names, for manual mode
@@ -1152,7 +1202,10 @@ function initMap(){
   map.fitBounds(latLngs, {padding: [22, 22]});
 }
 
-// --- Reports (device-local only, via localStorage) ---
+// --- Reports ---
+// Shared across devices via Firebase (see the <script type="module"> block near
+// the end of the file). localStorage stays as a same-device fallback for when
+// Firebase hasn't loaded yet or the network blocks it.
 const REPORTS_KEY = "aiguaneta_reports_v1";
 const REPORT_SEEN_WINDOW_H = 6;   // a "medusa vista" report boosts risk for this long
 const REPORT_CLEAR_WINDOW_H = 3;  // a "sense medusa" report softens risk, but fades faster
@@ -1166,6 +1219,9 @@ function saveReports(reports){
   try{ localStorage.setItem(REPORTS_KEY, JSON.stringify(reports)); }catch(e){}
 }
 function addReport(beachName, type){
+  // Shared report, visible to everyone using the app (best-effort).
+  if (window.__fbAddReport) window.__fbAddReport(beachName, type);
+  // Always also keep a local copy, so this still works if Firebase is unreachable.
   const reports = loadReports();
   if (!reports[beachName]) reports[beachName] = [];
   reports[beachName].push({type, time: Date.now()});
@@ -1175,6 +1231,14 @@ function addReport(beachName, type){
   renderList();
 }
 function latestReport(beachName){
+  // Prefer the shared Firebase feed when it's available.
+  if (window.__fbReports){
+    const mine = window.__fbReports.filter(r => r.beach === beachName);
+    if (mine.length){
+      mine.sort((a,b)=>a.time-b.time);
+      return mine[mine.length - 1];
+    }
+  }
   const reports = loadReports()[beachName];
   if (!reports || !reports.length) return null;
   return reports[reports.length - 1];
@@ -1302,8 +1366,10 @@ function renderList(){
   listEl.innerHTML = filtered.map(b=>{
     const {risk, note, report} = beachRiskInfo(b);
     const safeName = b.name.replace(/'/g, "\\'");
+    const isShared = window.__fbReports && window.__fbReports.some(r => r.beach === b.name);
+    const shareTag = isShared ? " · 🌐 compartit" : " · només al teu mòbil";
     const reportNote = report
-      ? `<div class="report-note">${report.type === "seen" ? "🪼 reportat fa " + formatHoursAgo(report.hours) : "✅ net reportat fa " + formatHoursAgo(report.hours)}</div>`
+      ? `<div class="report-note">${report.type === "seen" ? "🪼 reportat fa " + formatHoursAgo(report.hours) : "✅ net reportat fa " + formatHoursAgo(report.hours)}${shareTag}</div>`
       : "";
     return `
     <div class="card">
@@ -1419,7 +1485,7 @@ async function loadWind(retries){
   document.getElementById("list").innerHTML = `<div class="loading"><div class="spinner"></div>Consultant el vent en temps real…</div>`;
   try{
     const res = await fetchWithTimeout(
-      "https://api.open-meteo.com/v1/forecast?latitude=40.00&longitude=3.84&current=wind_speed_10m,wind_direction_10m&hourly=wind_speed_10m,wind_direction_10m&past_days=2&forecast_days=1&wind_speed_unit=kmh&timezone=Europe%2FMadrid",
+      "https://api.open-meteo.com/v1/forecast?latitude=39.97&longitude=4.05&current=wind_speed_10m,wind_direction_10m&hourly=wind_speed_10m,wind_direction_10m&past_days=2&forecast_days=1&wind_speed_unit=kmh&timezone=Europe%2FMadrid",
       7000
     );
     if (!res.ok) throw new Error("HTTP " + res.status);
@@ -1464,7 +1530,7 @@ async function loadWind(retries){
 async function loadCurrent(){
   try{
     const res = await fetchWithTimeout(
-      "https://marine-api.open-meteo.com/v1/marine?latitude=40.00&longitude=3.84&current=ocean_current_velocity,ocean_current_direction,sea_surface_temperature&hourly=ocean_current_velocity,ocean_current_direction&past_days=2&forecast_days=1&timezone=Europe%2FMadrid",
+      "https://marine-api.open-meteo.com/v1/marine?latitude=39.97&longitude=4.05&current=ocean_current_velocity,ocean_current_direction,sea_surface_temperature&hourly=ocean_current_velocity,ocean_current_direction&past_days=2&forecast_days=1&timezone=Europe%2FMadrid",
       7000
     );
     if (!res.ok) throw new Error("HTTP " + res.status);
@@ -1524,6 +1590,51 @@ initManualControls();
 try{ initMap(); }catch(e){ console.warn("Mapa no disponible:", e); }
 loadWind();
 setInterval(()=>{ if (MODE === "live") loadWind(1); }, 15*60*1000);
+</script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, query, where, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDZJ3aZEjMCFjd_MgXCZ49ItgXKwwLIYXI",
+    authDomain: "menorcameduses.firebaseapp.com",
+    projectId: "menorcameduses",
+    storageBucket: "menorcameduses.firebasestorage.app",
+    messagingSenderId: "1052251699537",
+    appId: "1:1052251699537:web:0727acd899d1a4dc08bb70"
+  };
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const reportsCol = collection(db, "reports");
+
+    // Write a report that every device using the app will see.
+    window.__fbAddReport = async function(beach, type){
+      try{
+        await addDoc(reportsCol, {beach, type, time: Date.now()});
+      }catch(e){
+        console.warn("No s'ha pogut enviar el report compartit:", e);
+      }
+    };
+
+    // Keep a live feed of the last 48h of reports, refreshed in real time.
+    const cutoff = Date.now() - 48*60*60*1000;
+    const q = query(reportsCol, where("time", ">", cutoff));
+    onSnapshot(q, snapshot => {
+      const list = [];
+      snapshot.forEach(doc => list.push(doc.data()));
+      window.__fbReports = list;
+      // Re-render if the app has already finished its first paint.
+      if (typeof renderList === "function" && WIND) renderList();
+    }, err => {
+      console.warn("Reports compartits no disponibles (es continua en local):", err);
+    });
+  } catch(e){
+    console.warn("Firebase no disponible, es fa servir només el mode local:", e);
+  }
 </script>
 </body>
 </html>
