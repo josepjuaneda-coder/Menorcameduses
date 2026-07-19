@@ -999,6 +999,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   </div>
 
   <div class="filters" id="filters"></div>
+  <div class="filters" id="riskFilters" style="padding-top:4px;"></div>
   <div class="list" id="list">
     <div class="loading"><div class="spinner"></div>Consultant el vent en temps real…</div>
   </div>
@@ -1151,14 +1152,20 @@ function computeRisk(windDir, windSpeed, beach, curDir, curSpeed){
 }
 
 // Leaky-integrator: each hour's push toward the beach gets folded in, and past
-// hours fade out gradually (half-life ~30h) instead of vanishing the instant
-// the wind drops. This is what lets "it blew onshore yesterday" still count today.
-const DECAY_PER_HOUR = Math.pow(0.5, 1/30);
+// hours fade out gradually (half-life ~18h) instead of vanishing the instant
+// the wind drops. This is what lets "it blew onshore yesterday" still count today
+// — but short enough that a single passing gust from two days ago doesn't keep
+// every beach on the island lit up (sea breeze rotates through most directions
+// over a couple of days, so a long memory made almost everything look elevated).
+const DECAY_PER_HOUR = Math.pow(0.5, 1/18);
+const ACCUMULATION_WINDOW_HOURS = 30; // only look this far back, even if more history was fetched
 
 function computeAccumulatedRisk(beach){
   let acc = 0;
-  WIND_HISTORY.forEach((h, i) => {
-    const c = CURRENT_HISTORY[i]; // may be undefined if marine fetch failed/misaligned
+  const recent = WIND_HISTORY.slice(-ACCUMULATION_WINDOW_HOURS);
+  const recentCurrent = CURRENT_HISTORY.slice(-ACCUMULATION_WINDOW_HOURS);
+  recent.forEach((h, i) => {
+    const c = recentCurrent[i]; // may be undefined if marine fetch failed/misaligned
     const input = computeRisk(h.dir, h.speed, beach, c ? c.dir : null, c ? c.speed : null);
     // Jump straight up to a strong hour's score (attack), otherwise let the
     // previous peak fade out gradually (decay) rather than averaging it away.
@@ -1335,6 +1342,7 @@ function miniCompassSVG(beachDir, windDir){
 }
 
 let currentFilter = "Totes";
+let currentRiskFilter = "Totes"; // "Totes" | "baix" | "mig" | "alt"
 let WIND = null;
 let WIND_HISTORY = []; // array of {dir, speed} for past ~40h, chronological (oldest first), live mode only
 let CURRENT = null; // ocean surface current: {dir, speed(m/s)}
@@ -1353,6 +1361,22 @@ function renderFilters(){
       renderList();
     });
   });
+
+  const riskLevels = [
+    {key:"Totes", label:"Totes"},
+    {key:"baix", label:"🔵 Baix"},
+    {key:"mig", label:"🟡 Mig"},
+    {key:"alt", label:"🔴 Alt"},
+  ];
+  const riskEl = document.getElementById("riskFilters");
+  riskEl.innerHTML = riskLevels.map(r => `<button class="filter-btn ${r.key===currentRiskFilter?'active':''}" data-r="${r.key}">${r.label}</button>`).join("");
+  riskEl.querySelectorAll(".filter-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      currentRiskFilter = btn.dataset.r;
+      renderFilters();
+      renderList();
+    });
+  });
 }
 
 function renderList(){
@@ -1362,9 +1386,22 @@ function renderList(){
     listEl.innerHTML = `<div class="err">Encara no hi ha dades de vent. Prova el mode manual de sota.</div>`;
     return;
   }
-  const filtered = BEACHES.filter(b => currentFilter==="Totes" || b.coast===currentFilter);
-  listEl.innerHTML = filtered.map(b=>{
-    const {risk, note, report} = beachRiskInfo(b);
+  let filtered = BEACHES.filter(b => currentFilter==="Totes" || b.coast===currentFilter);
+  // Attach the computed risk once per beach so we can filter/sort by it without recalculating.
+  filtered = filtered.map(b => ({beach: b, info: beachRiskInfo(b)}));
+  if (currentRiskFilter !== "Totes"){
+    filtered = filtered.filter(x => x.info.risk.cls === currentRiskFilter);
+  }
+  // Lowest risk first, so a bather can scan straight to what's safe right now.
+  filtered.sort((a,b) => a.info.score - b.info.score);
+
+  if (!filtered.length){
+    listEl.innerHTML = `<div class="err">Cap cala amb aquest filtre ara mateix.</div>`;
+    return;
+  }
+
+  listEl.innerHTML = filtered.map(({beach: b, info}) => {
+    const {risk, note, report} = info;
     const safeName = b.name.replace(/'/g, "\\'");
     const isShared = window.__fbReports && window.__fbReports.some(r => r.beach === b.name);
     const shareTag = isShared ? " · 🌐 compartit" : " · només al teu mòbil";
