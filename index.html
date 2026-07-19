@@ -907,6 +907,99 @@ svg.leaflet-image-layer.leaflet-interactive path {
     font-family:'JetBrains Mono',monospace;
   }
 
+  /* HOME SCREEN */
+  .home-hero{
+    background:radial-gradient(120% 140% at 50% -10%, var(--blau-mitjan) 0%, var(--blau-fosc) 65%);
+    color:#fff; padding:34px 22px 30px; border-radius:0 0 28px 28px;
+  }
+  .home-hero h1{font-family:'Fraunces',serif; font-weight:700; font-size:34px; margin-top:10px;}
+  .home-hero .sub{font-size:14px; color:#C8DCE4; margin-top:8px;}
+  .home-buttons{padding:22px 20px 10px; display:flex; flex-direction:column; gap:12px;}
+  .home-btn{
+    display:flex; align-items:center; gap:14px;
+    background:#fff; border:1px solid rgba(201,168,118,0.35); border-radius:18px;
+    padding:16px; text-align:left; cursor:pointer;
+    box-shadow:0 2px 14px rgba(10,61,82,0.07);
+  }
+  .home-btn:active{opacity:0.75;}
+  .home-btn-icon{font-size:28px; flex:none;}
+  .home-btn-text{display:flex; flex-direction:column;}
+  .home-btn-title{font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--text-fosc);}
+  .home-btn-sub{font-size:12px; color:var(--text-suau); margin-top:2px;}
+
+  .back-btn{
+    display:block; margin:16px 20px 0;
+    background:none; border:none; color:var(--blau-mitjan);
+    font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600;
+    padding:6px 0; cursor:pointer;
+  }
+  .info-screen-title{
+    font-family:'Fraunces',serif; font-weight:600; font-size:20px;
+    color:var(--blau-fosc); padding:10px 20px 0;
+  }
+  #screen-firstaid .info-panel, #screen-species .info-panel{
+    margin:14px 20px 20px; padding:16px;
+    background:#fff; border:1px solid rgba(201,168,118,0.35); border-radius:16px;
+    box-shadow:0 2px 14px rgba(10,61,82,0.06);
+  }
+
+  /* INFO SECTION (first aid + species) */
+  .info-section{padding:18px 20px 0;}
+  .info-toggle{
+    width:100%; text-align:left;
+    background:#fff; border:1px solid rgba(201,168,118,0.35);
+    border-radius:16px; padding:14px 16px;
+    font-family:'Fraunces',serif; font-weight:600; font-size:15px;
+    color:var(--blau-fosc);
+    display:flex; justify-content:space-between; align-items:center;
+    box-shadow:0 2px 10px rgba(10,61,82,0.06);
+    cursor:pointer;
+  }
+  .info-panel{
+    display:none;
+    background:#fff; border:1px solid rgba(201,168,118,0.35); border-top:none;
+    border-radius:0 0 16px 16px; margin-top:-8px; padding:4px 16px 16px;
+  }
+  .steps-list{margin:8px 0 0; padding-left:0; list-style:none; counter-reset:step;}
+  .steps-list li{
+    counter-increment: step;
+    padding-left:30px; position:relative;
+    margin-bottom:10px; font-size:13.5px; line-height:1.45; color:var(--text-fosc);
+  }
+  .steps-list li::before{
+    content: counter(step);
+    position:absolute; left:0; top:0;
+    width:21px; height:21px; border-radius:50%;
+    background:var(--blau-mitjan); color:#fff;
+    font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dont-box{
+    background:rgba(225,93,80,0.08); border-left:3px solid var(--coral);
+    border-radius:8px; padding:10px 12px; margin-top:8px;
+    font-size:13px; color:var(--text-fosc); line-height:1.5;
+  }
+  .warn-box{
+    background:rgba(222,154,60,0.1); border-left:3px solid var(--ambre);
+    border-radius:8px; padding:10px 12px; margin-top:10px;
+    font-size:12.5px; color:var(--text-fosc); line-height:1.5;
+  }
+  .species-card{
+    display:flex; gap:12px; padding:12px 0;
+    border-bottom:1px solid rgba(201,168,118,0.2);
+  }
+  .species-card:last-child{border-bottom:none;}
+  .species-dot{
+    width:14px; height:14px; border-radius:50%; flex:none; margin-top:4px;
+  }
+  .species-name{font-family:'Fraunces',serif; font-weight:600; font-size:14px; color:var(--text-fosc);}
+  .species-latin{font-size:11px; color:var(--text-suau); font-style:italic; margin-bottom:3px;}
+  .species-desc{font-size:12.5px; color:var(--text-suau); line-height:1.45;}
+  .species-badge{
+    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600;
+    padding:2px 8px; border-radius:100px; display:inline-block; margin-top:4px;
+  }
+
   /* FOOTER */
   .footer{
     padding:22px 20px 10px;
@@ -937,6 +1030,40 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </head>
 <body>
 <div class="app">
+
+  <div id="screen-home">
+    <div class="home-hero">
+      <div class="eyebrow" style="justify-content:flex-start; gap:10px;"><span>Menorca</span></div>
+      <h1>Aigua Neta</h1>
+      <div class="sub">Tot el que et cal saber abans de ficar-te a l'aigua.</div>
+    </div>
+    <div class="home-buttons">
+      <button class="home-btn" onclick="showScreen('screen-map')">
+        <span class="home-btn-icon">🗺️</span>
+        <span class="home-btn-text">
+          <span class="home-btn-title">Mapa de risc</span>
+          <span class="home-btn-sub">Vent, corrent i risc per cala</span>
+        </span>
+      </button>
+      <button class="home-btn" onclick="showScreen('screen-firstaid')">
+        <span class="home-btn-icon">🩹</span>
+        <span class="home-btn-text">
+          <span class="home-btn-title">Què fer si et pica una medusa</span>
+          <span class="home-btn-sub">Primers auxilis, pas a pas</span>
+        </span>
+      </button>
+      <button class="home-btn" onclick="showScreen('screen-species')">
+        <span class="home-btn-icon">🎏</span>
+        <span class="home-btn-text">
+          <span class="home-btn-title">Meduses d'aquesta zona</span>
+          <span class="home-btn-sub">Quines n'hi ha i com són</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div id="screen-map" style="display:none;">
+  <button class="back-btn" onclick="showScreen('screen-home')">← Inici</button>
 
   <div class="hero">
     <div class="eyebrow">
@@ -1007,6 +1134,75 @@ svg.leaflet-image-layer.leaflet-interactive path {
   <div class="footer">
     Estimació basada en el vent i el <b>corrent marí superficial</b> (<span style="font-family:'JetBrains Mono',monospace">Open-Meteo</span>), no en observació directa de medusa. Un flux <b>terral</b> (cap al mar) redueix el risc; un flux de <b>component mar</b> l'incrementa. Confirma sempre amb la bandera o el personal de la platja.
   </div>
+  </div>
+
+  <div id="screen-firstaid" style="display:none;" class="info-section">
+    <button class="back-btn" onclick="showScreen('screen-home')">← Inici</button>
+    <h2 class="info-screen-title">🩹 Què fer si et pica una medusa</h2>
+    <div class="info-panel" style="display:block;">
+      <ol class="steps-list">
+        <li>Surt de l'aigua amb calma, sense córrer ni nedar de pressa.</li>
+        <li>No et rasquis ni et fricis la zona, ni tan sols amb una tovallola o sorra — així s'activen més cèl·lules urticants.</li>
+        <li>Renta la zona amb <b>aigua de mar</b> — mai amb aigua dolça, que fa que les cèl·lules restants es disparin encara més.</li>
+        <li>Retira restes de tentacle amb pinces, una targeta o la mà protegida (mai amb la mà nua directa).</li>
+        <li>Aplica fred (una bossa de plàstic amb gel, mai el gel directe sobre la pell) durant uns 15 minuts, sense fregar.</li>
+      </ol>
+      <div class="dont-box">
+        <b>No apliquis:</b> vinagre, amoníac, orina, alcohol ni sorra. Contra el que diu la creença popular, per a les meduses comunes del Mediterrani el vinagre no ajuda i en alguns casos pot empitjorar-ho.
+      </div>
+      <div class="warn-box">
+        ⚠️ Busca atenció mèdica (o truca al <b>112</b>) si hi ha dificultat per respirar, inflor a la cara/gola, mareig intens, picades molt extenses, o si afecta un infant petit o algú al·lèrgic. Aquesta informació és orientativa i no substitueix l'atenció sanitària.
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-species" style="display:none;" class="info-section">
+    <button class="back-btn" onclick="showScreen('screen-home')">← Inici</button>
+    <h2 class="info-screen-title">🎏 Meduses d'aquesta zona</h2>
+    <div class="info-panel" style="display:block;">
+      <div class="species-card">
+        <div class="species-dot" style="background:#E15D50;"></div>
+        <div>
+          <div class="species-name">Medusa lluminosa <span class="species-badge" style="background:rgba(225,93,80,0.15); color:#E15D50;">més comuna i la que pica</span></div>
+          <div class="species-latin">Pelagia noctiluca</div>
+          <div class="species-desc">Rosada o violàcia, uns 10 cm. És la responsable de la gran majoria de picades a Menorca, sobretot en anys secs i càlids. Picada dolorosa però no perillosa en adults sans.</div>
+        </div>
+      </div>
+      <div class="species-card">
+        <div class="species-dot" style="background:#2E86DE;"></div>
+        <div>
+          <div class="species-name">Ou ferrat <span class="species-badge" style="background:rgba(46,134,222,0.15); color:#2E86DE;">gairebé inofensiva</span></div>
+          <div class="species-latin">Cotylorhiza tuberculata</div>
+          <div class="species-desc">Groguenca amb el centre marró, forma de cúpula grossa. Molt vistosa però la seva picada amb prou feines es nota.</div>
+        </div>
+      </div>
+      <div class="species-card">
+        <div class="species-dot" style="background:#2E86DE;"></div>
+        <div>
+          <div class="species-name">Aigua cuallada <span class="species-badge" style="background:rgba(46,134,222,0.15); color:#2E86DE;">lleu</span></div>
+          <div class="species-latin">Rhizostoma pulmo</div>
+          <div class="species-desc">Blanca-blavosa, pot ser molt grossa (fins 40-90 cm), però la seva picada sol ser lleu o gairebé imperceptible.</div>
+        </div>
+      </div>
+      <div class="species-card">
+        <div class="species-dot" style="background:#F2B33D;"></div>
+        <div>
+          <div class="species-name">Barqueta de Sant Pere <span class="species-badge" style="background:rgba(242,179,61,0.18); color:#9C6A1E;">no és medusa</span></div>
+          <div class="species-latin">Velella velella</div>
+          <div class="species-desc">Petita (uns 5 cm), blava, amb una "vela" transparent que sobresurt de l'aigua. Sol arribar en grans quantitats empesa pel vent. Picada molt lleu.</div>
+        </div>
+      </div>
+      <div class="species-card">
+        <div class="species-dot" style="background:#E15D50;"></div>
+        <div>
+          <div class="species-name">Cubomedusa <span class="species-badge" style="background:rgba(225,93,80,0.15); color:#E15D50;">rara, més dolorosa</span></div>
+          <div class="species-latin">Carybdea marsupialis</div>
+          <div class="species-desc">Petita i gairebé transparent, en forma de cub — difícil de veure. Poc freqüent, però la picada és més intensa que la de la Pelagia.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -1185,6 +1381,7 @@ const MAP_COLORS = {alt:"#E15D50", mig:"#F2B33D", baix:"#2E86DE"};
 let map = null;
 const markers = {}; // beach.name -> leaflet layer
 
+let mapLatLngs = [];
 function initMap(){
   map = L.map('map', {scrollWheelZoom:false});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1192,7 +1389,6 @@ function initMap(){
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  const latLngs = [];
   BEACHES.forEach(b => {
     const marker = L.circleMarker([b.lat, b.lon], {
       radius: 9,
@@ -1203,10 +1399,13 @@ function initMap(){
     }).addTo(map);
     marker.bindPopup("");
     markers[b.name] = marker;
-    latLngs.push([b.lat, b.lon]);
+    mapLatLngs.push([b.lat, b.lon]);
   });
   // Fit the view to every beach, whatever their spread, instead of a fixed guess.
-  map.fitBounds(latLngs, {padding: [22, 22]});
+  // (The container is still hidden behind screen-home at this point, so this first
+  // fitBounds can compute against a zero-size box — it gets redone properly in
+  // showScreen() the moment the map actually becomes visible.)
+  map.fitBounds(mapLatLngs, {padding: [22, 22]});
 }
 
 // --- Reports ---
@@ -1623,6 +1822,35 @@ function renderHistoryPanel(){
   panel.innerHTML = rows.join("<br>");
 }
 
+function setupSimpleToggle(toggleId, panelId, arrowId){
+  const btn = document.getElementById(toggleId);
+  const panel = document.getElementById(panelId);
+  const arrow = document.getElementById(arrowId);
+  btn.addEventListener("click", ()=>{
+    const showing = panel.style.display === "block";
+    panel.style.display = showing ? "none" : "block";
+    arrow.textContent = showing ? "▾" : "▴";
+  });
+}
+
+// --- Screen navigation ---
+const SCREENS = ["screen-home", "screen-map", "screen-firstaid", "screen-species"];
+function showScreen(id){
+  SCREENS.forEach(s => {
+    document.getElementById(s).style.display = (s === id) ? "block" : "none";
+  });
+  window.scrollTo(0, 0);
+  if (window.__fbLogScreen) window.__fbLogScreen(id);
+  // Leaflet can't size itself correctly while its container is display:none,
+  // so nudge it once the map screen is actually visible.
+  if (id === "screen-map" && map){
+    setTimeout(()=>{
+      map.invalidateSize();
+      if (mapLatLngs.length) map.fitBounds(mapLatLngs, {padding: [22, 22]});
+    }, 80);
+  }
+}
+
 initManualControls();
 try{ initMap(); }catch(e){ console.warn("Mapa no disponible:", e); }
 loadWind();
@@ -1633,6 +1861,7 @@ setInterval(()=>{ if (MODE === "live") loadWind(1); }, 15*60*1000);
   import {
     getFirestore, collection, addDoc, query, where, onSnapshot
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDZJ3aZEjMCFjd_MgXCZ49ItgXKwwLIYXI",
@@ -1640,13 +1869,20 @@ setInterval(()=>{ if (MODE === "live") loadWind(1); }, 15*60*1000);
     projectId: "menorcameduses",
     storageBucket: "menorcameduses.firebasestorage.app",
     messagingSenderId: "1052251699537",
-    appId: "1:1052251699537:web:0727acd899d1a4dc08bb70"
+    appId: "1:1052251699537:web:0727acd899d1a4dc08bb70",
+    measurementId: "G-P6YR0TJK2L"
   };
 
   try {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const reportsCol = collection(db, "reports");
+    try{
+      const analytics = getAnalytics(app);
+      window.__fbLogScreen = function(name){
+        try{ logEvent(analytics, "screen_view", {screen_name: name}); }catch(e){}
+      };
+    }catch(e){ console.warn("Analytics no disponible:", e); }
 
     // Write a report that every device using the app will see.
     window.__fbAddReport = async function(beach, type){
