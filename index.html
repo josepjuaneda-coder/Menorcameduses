@@ -1671,6 +1671,56 @@ const BEACHES = [
   {island:"Mallorca", name:"Cala Gat", coast:"Capdepera", dir:50, sheltered:false, lat:39.7250, lon:3.4950},
   {island:"Mallorca", name:"Cala Torta", coast:"Artà", dir:30, sheltered:false, lat:39.7400, lon:3.4550},
   {island:"Mallorca", name:"Cala Mitjana (Artà)", coast:"Artà", dir:40, sheltered:false, lat:39.7350, lon:3.4600},
+
+  // ============ EIVISSA ============
+  // First-pass curated list, same caveat as Mallorca: best-effort coordinates,
+  // not yet field-verified. Flag anything that looks off.
+
+  // --- Sant Antoni de Portmany (oest) ---
+  {island:"Eivissa", name:"Cala Salada", coast:"Sant Antoni de Portmany", dir:300, sheltered:false, lat:38.9950, lon:1.2870},
+  {island:"Eivissa", name:"Cala Gració", coast:"Sant Antoni de Portmany", dir:300, sheltered:true, lat:38.9880, lon:1.2990},
+  {island:"Eivissa", name:"Port des Torrent", coast:"Sant Antoni de Portmany", dir:280, sheltered:false, lat:38.9780, lon:1.2830},
+
+  // --- Sant Josep de sa Talaia (sud-oest / sud) ---
+  {island:"Eivissa", name:"Cala Comte", coast:"Sant Josep de sa Talaia", dir:260, sheltered:false, lat:38.9640, lon:1.2280},
+  {island:"Eivissa", name:"Cala Bassa", coast:"Sant Josep de sa Talaia", dir:260, sheltered:true, lat:38.9720, lon:1.2460},
+  {island:"Eivissa", name:"Cala Tarida", coast:"Sant Josep de sa Talaia", dir:260, sheltered:false, lat:38.9600, lon:1.2190},
+  {island:"Eivissa", name:"Cala Vadella", coast:"Sant Josep de sa Talaia", dir:250, sheltered:true, lat:38.9420, lon:1.2270},
+  {island:"Eivissa", name:"Cala Codolar", coast:"Sant Josep de sa Talaia", dir:250, sheltered:false, lat:38.9500, lon:1.2350},
+  {island:"Eivissa", name:"Cala d'Hort", coast:"Sant Josep de sa Talaia", dir:220, sheltered:false, lat:38.9330, lon:1.2160},
+  {island:"Eivissa", name:"Cala Jondal", coast:"Sant Josep de sa Talaia", dir:190, sheltered:true, lat:38.9100, lon:1.3350},
+  {island:"Eivissa", name:"Platja d'en Bossa", coast:"Sant Josep de sa Talaia", dir:170, sheltered:false, lat:38.8850, lon:1.4090},
+  {island:"Eivissa", name:"Es Cavallet", coast:"Sant Josep de sa Talaia", dir:170, sheltered:false, lat:38.8720, lon:1.3980},
+  {island:"Eivissa", name:"Ses Salines", coast:"Sant Josep de sa Talaia", dir:170, sheltered:false, lat:38.8630, lon:1.3930},
+
+  // --- Sant Joan de Labritja (nord) ---
+  {island:"Eivissa", name:"Portinatx", coast:"Sant Joan de Labritja", dir:20, sheltered:true, lat:39.0800, lon:1.4870},
+  {island:"Eivissa", name:"Cala Xarraca", coast:"Sant Joan de Labritja", dir:350, sheltered:true, lat:39.0730, lon:1.4680},
+  {island:"Eivissa", name:"Benirràs", coast:"Sant Joan de Labritja", dir:340, sheltered:false, lat:39.0650, lon:1.4380},
+  {island:"Eivissa", name:"Cala Sant Vicent", coast:"Sant Joan de Labritja", dir:60, sheltered:false, lat:39.0480, lon:1.5330},
+  {island:"Eivissa", name:"Aigües Blanques", coast:"Sant Joan de Labritja", dir:60, sheltered:false, lat:39.0270, lon:1.5330},
+
+  // --- Santa Eulària des Riu (est) ---
+  {island:"Eivissa", name:"Santa Eulària des Riu", coast:"Santa Eulària des Riu", dir:90, sheltered:false, lat:38.9830, lon:1.5450},
+  {island:"Eivissa", name:"Es Canar", coast:"Santa Eulària des Riu", dir:70, sheltered:false, lat:39.0000, lon:1.5650},
+  {island:"Eivissa", name:"Cala Llonga", coast:"Santa Eulària des Riu", dir:120, sheltered:true, lat:38.9430, lon:1.5290},
+  {island:"Eivissa", name:"Cala Nova", coast:"Santa Eulària des Riu", dir:70, sheltered:false, lat:39.0080, lon:1.5720},
+  {island:"Eivissa", name:"Cala Martina", coast:"Santa Eulària des Riu", dir:70, sheltered:false, lat:39.0130, lon:1.5680},
+  {island:"Eivissa", name:"Niu Blau", coast:"Santa Eulària des Riu", dir:60, sheltered:false, lat:39.0180, lon:1.5720},
+
+  // --- Eivissa (ciutat) ---
+  {island:"Eivissa", name:"Talamanca", coast:"Eivissa", dir:60, sheltered:true, lat:38.9280, lon:1.4460},
+  {island:"Eivissa", name:"Ses Figueretes", coast:"Eivissa", dir:180, sheltered:false, lat:38.8990, lon:1.4300},
+
+  // ============ FORMENTERA ============
+  {island:"Formentera", name:"Ses Illetes", coast:"Sant Francesc Xavier", dir:20, sheltered:true, lat:38.7460, lon:1.4300},
+  {island:"Formentera", name:"Cala Saona", coast:"Sant Francesc Xavier", dir:250, sheltered:true, lat:38.6980, lon:1.4020},
+  {island:"Formentera", name:"Es Pujols", coast:"Es Pujols", dir:40, sheltered:true, lat:38.7250, lon:1.4450},
+  {island:"Formentera", name:"Llevant", coast:"Sant Ferran de ses Roques", dir:60, sheltered:false, lat:38.7350, lon:1.4600},
+  {island:"Formentera", name:"Migjorn (Ca Marí)", coast:"Sant Ferran de ses Roques", dir:175, sheltered:false, lat:38.6980, lon:1.5100},
+  {island:"Formentera", name:"Migjorn (Es Arenals)", coast:"Sant Ferran de ses Roques", dir:175, sheltered:false, lat:38.6950, lon:1.4900},
+  {island:"Formentera", name:"Es Caló de Sant Agustí", coast:"Es Caló", dir:90, sheltered:true, lat:38.7080, lon:1.5080},
+  {island:"Formentera", name:"Cala en Baster", coast:"Es Caló", dir:130, sheltered:true, lat:38.6900, lon:1.5220},
 ];
 
 // Traditional Mediterranean/Catalan wind names, for manual mode
@@ -1940,6 +1990,8 @@ let MODE = "live"; // "live" or "manual"
 const ISLAND_CENTERS = {
   "Menorca":     {lat:39.97, lon:4.05},
   "Mallorca":    {lat:39.62, lon:2.90},
+  "Eivissa":     {lat:38.98, lon:1.43},
+  "Formentera":  {lat:38.70, lon:1.47},
 };
 let currentIsland = "Menorca";
 const ISLAND_CACHE = {}; // island name -> {WIND, WIND_HISTORY, CURRENT, CURRENT_HISTORY, SEA_TEMP, MODE}
