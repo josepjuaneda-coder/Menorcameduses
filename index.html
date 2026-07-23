@@ -908,6 +908,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
   }
 
   /* HOME SCREEN */
+  .lang-switch{display:flex; gap:4px;}
+  .lang-btn{
+    font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600;
+    padding:4px 8px; border-radius:100px; border:1px solid rgba(255,255,255,0.3);
+    background:rgba(255,255,255,0.08); color:#C8DCE4; cursor:pointer;
+  }
+  .lang-btn.active{background:var(--aigua); border-color:var(--aigua); color:#0A3D52;}
   .home-hero{
     background:radial-gradient(120% 140% at 50% -10%, var(--blau-mitjan) 0%, var(--blau-fosc) 65%);
     color:#fff; padding:34px 22px 30px; border-radius:0 0 28px 28px;
@@ -1033,45 +1040,49 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   <div id="screen-home">
     <div class="home-hero">
-      <div class="eyebrow" style="justify-content:flex-start; gap:10px;"><span>Menorca</span></div>
+      <div class="eyebrow" style="justify-content:space-between; gap:10px;">
+        <span>Menorca</span>
+        <span class="lang-switch" id="langSwitchHome"></span>
+      </div>
       <h1>Aigua Neta</h1>
-      <div class="sub">Tot el que et cal saber abans de ficar-te a l'aigua.</div>
+      <div class="sub" id="txt-home-sub">Tot el que et cal saber abans de ficar-te a l'aigua.</div>
     </div>
     <div class="home-buttons">
       <button class="home-btn" onclick="showScreen('screen-map')">
         <span class="home-btn-icon">🗺️</span>
         <span class="home-btn-text">
-          <span class="home-btn-title">Mapa de risc</span>
-          <span class="home-btn-sub">Vent, corrent i risc per cala</span>
+          <span class="home-btn-title" id="txt-home-map-title">Mapa de risc</span>
+          <span class="home-btn-sub" id="txt-home-map-sub">Vent, corrent i risc per cala</span>
         </span>
       </button>
       <button class="home-btn" onclick="showScreen('screen-firstaid')">
         <span class="home-btn-icon">🩹</span>
         <span class="home-btn-text">
-          <span class="home-btn-title">Què fer si et pica una medusa</span>
-          <span class="home-btn-sub">Primers auxilis, pas a pas</span>
+          <span class="home-btn-title" id="txt-home-aid-title">Què fer si et pica una medusa</span>
+          <span class="home-btn-sub" id="txt-home-aid-sub">Primers auxilis, pas a pas</span>
         </span>
       </button>
       <button class="home-btn" onclick="showScreen('screen-species')">
         <span class="home-btn-icon">🎏</span>
         <span class="home-btn-text">
-          <span class="home-btn-title">Meduses d'aquesta zona</span>
-          <span class="home-btn-sub">Quines n'hi ha i com són</span>
+          <span class="home-btn-title" id="txt-home-species-title">Meduses d'aquesta zona</span>
+          <span class="home-btn-sub" id="txt-home-species-sub">Quines n'hi ha i com són</span>
         </span>
       </button>
     </div>
   </div>
 
   <div id="screen-map" style="display:none;">
-  <button class="back-btn" onclick="showScreen('screen-home')">← Inici</button>
+  <button class="back-btn" id="txt-back-map" onclick="showScreen('screen-home')">← Inici</button>
 
   <div class="hero">
     <div class="eyebrow">
-      <span>Menorca · previsió local</span>
+      <span id="txt-map-eyebrow">Menorca · previsió local</span>
+      <span class="lang-switch" id="langSwitchMap" style="margin-left:auto; margin-right:8px;"></span>
       <button class="refresh-btn" id="retryBtn">↻ actualitzar</button>
     </div>
     <h1>Aigua Neta</h1>
-    <div class="sub">Risc de medusa a les cales de Menorca segons la direcció i força del vent.</div>
+    <div class="sub" id="txt-map-sub">Risc de medusa a les cales de Menorca segons la direcció i força del vent.</div>
 
     <div class="compass-wrap" id="compassWrap">
       <div class="compass">
@@ -1091,20 +1102,20 @@ svg.leaflet-image-layer.leaflet-interactive path {
         </svg>
       </div>
       <div class="wind-readout" id="windReadout">
-        <div class="label">carregant vent…</div>
+        <div class="label" id="txt-loading-wind">carregant vent…</div>
       </div>
     </div>
 
     <div class="manual-panel" id="manualPanel" style="display:none;">
-      <div class="manual-title">Vent manual — vents mediterranis</div>
+      <div class="manual-title" id="txt-manual-title">Vent manual — vents mediterranis</div>
       <div class="wind-buttons" id="windButtons"></div>
       <div class="slider-row">
-        <label>Direcció</label>
+        <label id="txt-dir-label">Direcció</label>
         <input type="range" id="dirSlider" min="0" max="359" value="0">
         <span class="slider-val" id="dirVal">0°</span>
       </div>
       <div class="slider-row">
-        <label>Força</label>
+        <label id="txt-speed-label">Força</label>
         <input type="range" id="speedSlider" min="0" max="45" value="10">
         <span class="slider-val" id="speedVal">10 km/h</span>
       </div>
@@ -1131,76 +1142,21 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <div class="loading"><div class="spinner"></div>Consultant el vent en temps real…</div>
   </div>
 
-  <div class="footer">
+  <div class="footer" id="txt-footer">
     Estimació basada en el vent i el <b>corrent marí superficial</b> (<span style="font-family:'JetBrains Mono',monospace">Open-Meteo</span>), no en observació directa de medusa. Un flux <b>terral</b> (cap al mar) redueix el risc; un flux de <b>component mar</b> l'incrementa. Confirma sempre amb la bandera o el personal de la platja.
   </div>
   </div>
 
   <div id="screen-firstaid" style="display:none;" class="info-section">
-    <button class="back-btn" onclick="showScreen('screen-home')">← Inici</button>
-    <h2 class="info-screen-title">🩹 Què fer si et pica una medusa</h2>
-    <div class="info-panel" style="display:block;">
-      <ol class="steps-list">
-        <li>Surt de l'aigua amb calma, sense córrer ni nedar de pressa.</li>
-        <li>No et rasquis ni et fricis la zona, ni tan sols amb una tovallola o sorra — així s'activen més cèl·lules urticants.</li>
-        <li>Renta la zona amb <b>aigua de mar</b> — mai amb aigua dolça, que fa que les cèl·lules restants es disparin encara més.</li>
-        <li>Retira restes de tentacle amb pinces, una targeta o la mà protegida (mai amb la mà nua directa).</li>
-        <li>Aplica fred (una bossa de plàstic amb gel, mai el gel directe sobre la pell) durant uns 15 minuts, sense fregar.</li>
-      </ol>
-      <div class="dont-box">
-        <b>No apliquis:</b> vinagre, amoníac, orina, alcohol ni sorra. Contra el que diu la creença popular, per a les meduses comunes del Mediterrani el vinagre no ajuda i en alguns casos pot empitjorar-ho.
-      </div>
-      <div class="warn-box">
-        ⚠️ Busca atenció mèdica (o truca al <b>112</b>) si hi ha dificultat per respirar, inflor a la cara/gola, mareig intens, picades molt extenses, o si afecta un infant petit o algú al·lèrgic. Aquesta informació és orientativa i no substitueix l'atenció sanitària.
-      </div>
-    </div>
+    <button class="back-btn" onclick="showScreen('screen-home')" id="txt-back-aid">← Inici</button>
+    <h2 class="info-screen-title" id="txt-aid-title">🩹 Què fer si et pica una medusa</h2>
+    <div class="info-panel" id="firstAidContent"></div>
   </div>
 
   <div id="screen-species" style="display:none;" class="info-section">
-    <button class="back-btn" onclick="showScreen('screen-home')">← Inici</button>
-    <h2 class="info-screen-title">🎏 Meduses d'aquesta zona</h2>
-    <div class="info-panel" style="display:block;">
-      <div class="species-card">
-        <div class="species-dot" style="background:#E15D50;"></div>
-        <div>
-          <div class="species-name">Medusa lluminosa <span class="species-badge" style="background:rgba(225,93,80,0.15); color:#E15D50;">més comuna i la que pica</span></div>
-          <div class="species-latin">Pelagia noctiluca</div>
-          <div class="species-desc">Rosada o violàcia, uns 10 cm. És la responsable de la gran majoria de picades a Menorca, sobretot en anys secs i càlids. Picada dolorosa però no perillosa en adults sans.</div>
-        </div>
-      </div>
-      <div class="species-card">
-        <div class="species-dot" style="background:#2E86DE;"></div>
-        <div>
-          <div class="species-name">Ou ferrat <span class="species-badge" style="background:rgba(46,134,222,0.15); color:#2E86DE;">gairebé inofensiva</span></div>
-          <div class="species-latin">Cotylorhiza tuberculata</div>
-          <div class="species-desc">Groguenca amb el centre marró, forma de cúpula grossa. Molt vistosa però la seva picada amb prou feines es nota.</div>
-        </div>
-      </div>
-      <div class="species-card">
-        <div class="species-dot" style="background:#2E86DE;"></div>
-        <div>
-          <div class="species-name">Aigua cuallada <span class="species-badge" style="background:rgba(46,134,222,0.15); color:#2E86DE;">lleu</span></div>
-          <div class="species-latin">Rhizostoma pulmo</div>
-          <div class="species-desc">Blanca-blavosa, pot ser molt grossa (fins 40-90 cm), però la seva picada sol ser lleu o gairebé imperceptible.</div>
-        </div>
-      </div>
-      <div class="species-card">
-        <div class="species-dot" style="background:#F2B33D;"></div>
-        <div>
-          <div class="species-name">Barqueta de Sant Pere <span class="species-badge" style="background:rgba(242,179,61,0.18); color:#9C6A1E;">no és medusa</span></div>
-          <div class="species-latin">Velella velella</div>
-          <div class="species-desc">Petita (uns 5 cm), blava, amb una "vela" transparent que sobresurt de l'aigua. Sol arribar en grans quantitats empesa pel vent. Picada molt lleu.</div>
-        </div>
-      </div>
-      <div class="species-card">
-        <div class="species-dot" style="background:#E15D50;"></div>
-        <div>
-          <div class="species-name">Cubomedusa <span class="species-badge" style="background:rgba(225,93,80,0.15); color:#E15D50;">rara, més dolorosa</span></div>
-          <div class="species-latin">Carybdea marsupialis</div>
-          <div class="species-desc">Petita i gairebé transparent, en forma de cub — difícil de veure. Poc freqüent, però la picada és més intensa que la de la Pelagia.</div>
-        </div>
-      </div>
-    </div>
+    <button class="back-btn" onclick="showScreen('screen-home')" id="txt-back-species">← Inici</button>
+    <h2 class="info-screen-title" id="txt-species-title">🎏 Meduses d'aquesta zona</h2>
+    <div class="info-panel" id="speciesContent"></div>
   </div>
 
 </div>
@@ -1214,7 +1170,301 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
 </script>
 <script>
-// Beaches across all of Menorca, grouped by municipality (west to east).
+// --- Translations (CA is the source-of-truth / default) ---
+let LANG = localStorage.getItem("aiguaneta_lang") || "ca";
+
+const I18N = {
+  ca: {
+    homeSub: "Tot el que et cal saber abans de ficar-te a l'aigua.",
+    homeMapTitle: "Mapa de risc", homeMapSub: "Vent, corrent i risc per cala",
+    homeAidTitle: "Què fer si et pica una medusa", homeAidSub: "Primers auxilis, pas a pas",
+    homeSpeciesTitle: "Meduses d'aquesta zona", homeSpeciesSub: "Quines n'hi ha i com són",
+    backHome: "← Inici",
+    mapEyebrow: "Menorca · previsió local",
+    mapSub: "Risc de medusa a les cales de Menorca segons la direcció i força del vent.",
+    refresh: "↻ actualitzar",
+    loadingWind: "carregant vent…",
+    loadingList: "Consultant el vent en temps real…",
+    windActual: "vent actual", currentLabel: "corrent",
+    liveTag: "vent en directe", manualTag: "vent manual",
+    noConnection: "sense connexió — usa el vent manual ↓",
+    manualTitle: "Vent manual — vents mediterranis",
+    dirLabel: "Direcció", speedLabel: "Força",
+    historyShow: "▾ veure vent per hores (48h)", historyHide: "▴ amagar vent per hores",
+    historyEmpty: "sense dades històriques (mode manual)",
+    filterAll: "Totes",
+    riskBaixChip: "🔵 Baix", riskMigChip: "🟡 Mig", riskAltChip: "🔴 Alt",
+    riskBaix: "BAIX", riskMig: "MIG", riskAlt: "ALT",
+    noWindData: "Encara no hi ha dades de vent. Prova el mode manual de sota.",
+    noBeachesFiltered: "Cap cala amb aquest filtre ara mateix.",
+    shelteredTag: "cala tancada · exposició reduïda",
+    reportSeenBtn: "🪼 He vist medusa", reportClearBtn: "✅ Sense medusa",
+    reportedSeen: h => `🪼 reportat fa ${h}`, reportedClear: h => `✅ net reportat fa ${h}`,
+    sharedTag: " · 🌐 compartit", localTag: " · només al teu mòbil",
+    overrideSeenNote: h => `Algú ha reportat medusa fa ${h}.`,
+    overrideClearNote: h => ` (Algú va reportar-hi sense medusa fa ${h}.)`,
+    noteManualCalm: "Vent molt fluix: poc transport de medusa amb aquestes condicions.",
+    noteManualOnshoreSheltered: "Vent de cara però la cala protegeix una mica; vigila igualment.",
+    noteManualOnshore: "Vent bufa cap a la cala: condicions favorables a l'arribada de medusa.",
+    noteManualOffshore: "Vent de component terral o creuat: condicions poc favorables ara mateix.",
+    noteResidual: "El vent d'ara és fluix, però hores/dies enrere ha bufat cap a la cala: encara pot quedar medusa arrossegada.",
+    noteLiveOnshoreSheltered: "Vent de cara i cala poc protegida del tot; probable arribada de medusa.",
+    noteLiveOnshore: "Vent bufa directament cap a la cala: condicions favorables a l'arribada de medusa.",
+    noteLiveAccum: "Acumulació de vent de cara les últimes hores. Risc real encara que ara mateix amaini.",
+    noteLiveCalm: "Ni ara ni en les últimes hores hi ha hagut vent de cara sostingut cap a la cala.",
+    seaTempHigh: "aigua càlida · temporada alta de medusa",
+    seaTempMid: "aigua temperada · temporada mitjana de medusa",
+    seaTempLow: "aigua freda · temporada baixa de medusa",
+    footer: `Estimació basada en el vent i el <b>corrent marí superficial</b> (<span style="font-family:'JetBrains Mono',monospace">Open-Meteo</span>), no en observació directa de medusa. Un flux <b>terral</b> (cap al mar) redueix el risc; un flux de <b>component mar</b> l'incrementa. Confirma sempre amb la bandera o el personal de la platja.`,
+    aidTitle: "🩹 Què fer si et pica una medusa",
+    aidSteps: [
+      "Surt de l'aigua amb calma, sense córrer ni nedar de pressa.",
+      "No et rasquis ni et fricis la zona, ni tan sols amb una tovallola o sorra — així s'activen més cèl·lules urticants.",
+      "Renta la zona amb <b>aigua de mar</b> — mai amb aigua dolça, que fa que les cèl·lules restants es disparin encara més.",
+      "Retira restes de tentacle amb pinces, una targeta o la mà protegida (mai amb la mà nua directa).",
+      "Aplica fred (una bossa de plàstic amb gel, mai el gel directe sobre la pell) durant uns 15 minuts, sense fregar."
+    ],
+    aidDont: `<b>No apliquis:</b> vinagre, amoníac, orina, alcohol ni sorra. Contra el que diu la creença popular, per a les meduses comunes del Mediterrani el vinagre no ajuda i en alguns casos pot empitjorar-ho.`,
+    aidWarn: `⚠️ Busca atenció mèdica (o truca al <b>112</b>) si hi ha dificultat per respirar, inflor a la cara/gola, mareig intens, picades molt extenses, o si afecta un infant petit o algú al·lèrgic. Aquesta informació és orientativa i no substitueix l'atenció sanitària.`,
+    speciesTitle: "🎏 Meduses d'aquesta zona"
+  },
+  es: {
+    homeSub: "Todo lo que necesitas saber antes de meterte al agua.",
+    homeMapTitle: "Mapa de riesgo", homeMapSub: "Viento, corriente y riesgo por cala",
+    homeAidTitle: "Qué hacer si te pica una medusa", homeAidSub: "Primeros auxilios, paso a paso",
+    homeSpeciesTitle: "Medusas de esta zona", homeSpeciesSub: "Cuáles hay y cómo son",
+    backHome: "← Inicio",
+    mapEyebrow: "Menorca · previsión local",
+    mapSub: "Riesgo de medusa en las calas de Menorca según la dirección y fuerza del viento.",
+    refresh: "↻ actualizar",
+    loadingWind: "cargando viento…",
+    loadingList: "Consultando el viento en tiempo real…",
+    windActual: "viento actual", currentLabel: "corriente",
+    liveTag: "viento en directo", manualTag: "viento manual",
+    noConnection: "sin conexión — usa el viento manual ↓",
+    manualTitle: "Viento manual — vientos mediterráneos",
+    dirLabel: "Dirección", speedLabel: "Fuerza",
+    historyShow: "▾ ver viento por horas (48h)", historyHide: "▴ ocultar viento por horas",
+    historyEmpty: "sin datos históricos (modo manual)",
+    filterAll: "Todas",
+    riskBaixChip: "🔵 Bajo", riskMigChip: "🟡 Medio", riskAltChip: "🔴 Alto",
+    riskBaix: "BAJO", riskMig: "MEDIO", riskAlt: "ALTO",
+    noWindData: "Todavía no hay datos de viento. Prueba el modo manual de abajo.",
+    noBeachesFiltered: "Ninguna cala con este filtro ahora mismo.",
+    shelteredTag: "cala cerrada · exposición reducida",
+    reportSeenBtn: "🪼 He visto medusa", reportClearBtn: "✅ Sin medusa",
+    reportedSeen: h => `🪼 reportado hace ${h}`, reportedClear: h => `✅ limpio reportado hace ${h}`,
+    sharedTag: " · 🌐 compartido", localTag: " · solo en tu móvil",
+    overrideSeenNote: h => `Alguien ha reportado medusa hace ${h}.`,
+    overrideClearNote: h => ` (Alguien reportó sin medusa hace ${h}.)`,
+    noteManualCalm: "Viento muy flojo: poco transporte de medusa con estas condiciones.",
+    noteManualOnshoreSheltered: "Viento de cara pero la cala protege algo; vigila igualmente.",
+    noteManualOnshore: "Viento sopla hacia la cala: condiciones favorables a la llegada de medusa.",
+    noteManualOffshore: "Viento de componente terral o cruzado: condiciones poco favorables ahora mismo.",
+    noteResidual: "El viento de ahora es flojo, pero horas/días atrás sopló hacia la cala: puede quedar medusa arrastrada.",
+    noteLiveOnshoreSheltered: "Viento de cara y cala poco protegida del todo; probable llegada de medusa.",
+    noteLiveOnshore: "Viento sopla directamente hacia la cala: condiciones favorables a la llegada de medusa.",
+    noteLiveAccum: "Acumulación de viento de cara en las últimas horas. Riesgo real aunque ahora amaine.",
+    noteLiveCalm: "Ni ahora ni en las últimas horas ha habido viento de cara sostenido hacia la cala.",
+    seaTempHigh: "agua cálida · temporada alta de medusa",
+    seaTempMid: "agua templada · temporada media de medusa",
+    seaTempLow: "agua fría · temporada baja de medusa",
+    footer: `Estimación basada en el viento y la <b>corriente marina superficial</b> (<span style="font-family:'JetBrains Mono',monospace">Open-Meteo</span>), no en observación directa de medusa. Un flujo <b>terral</b> (hacia el mar) reduce el riesgo; un flujo de <b>componente mar</b> lo aumenta. Confirma siempre con la bandera o el personal de la playa.`,
+    aidTitle: "🩹 Qué hacer si te pica una medusa",
+    aidSteps: [
+      "Sal del agua con calma, sin correr ni nadar deprisa.",
+      "No te rasques ni frotes la zona, ni siquiera con una toalla o arena — así se activan más células urticantes.",
+      "Lava la zona con <b>agua de mar</b> — nunca con agua dulce, que hace que las células restantes se disparen aún más.",
+      "Retira restos de tentáculo con pinzas, una tarjeta o la mano protegida (nunca con la mano desnuda directa).",
+      "Aplica frío (una bolsa de plástico con hielo, nunca el hielo directo sobre la piel) durante unos 15 minutos, sin frotar."
+    ],
+    aidDont: `<b>No apliques:</b> vinagre, amoníaco, orina, alcohol ni arena. Al contrario de la creencia popular, para las medusas comunes del Mediterráneo el vinagre no ayuda y en algunos casos puede empeorarlo.`,
+    aidWarn: `⚠️ Busca atención médica (o llama al <b>112</b>) si hay dificultad para respirar, hinchazón en cara/garganta, mareo intenso, picaduras muy extensas, o si afecta a un niño pequeño o alguien alérgico. Esta información es orientativa y no sustituye la atención sanitaria.`,
+    speciesTitle: "🎏 Medusas de esta zona"
+  },
+  en: {
+    homeSub: "Everything you need to know before getting in the water.",
+    homeMapTitle: "Risk map", homeMapSub: "Wind, current and risk per cove",
+    homeAidTitle: "What to do if a jellyfish stings you", homeAidSub: "First aid, step by step",
+    homeSpeciesTitle: "Jellyfish in this area", homeSpeciesSub: "Which ones, and what they look like",
+    backHome: "← Home",
+    mapEyebrow: "Menorca · local forecast",
+    mapSub: "Jellyfish risk at Menorca's coves based on wind direction and strength.",
+    refresh: "↻ refresh",
+    loadingWind: "loading wind…",
+    loadingList: "Checking real-time wind…",
+    windActual: "current wind", currentLabel: "current",
+    liveTag: "live wind", manualTag: "manual wind",
+    noConnection: "no connection — use manual wind ↓",
+    manualTitle: "Manual wind — Mediterranean winds",
+    dirLabel: "Direction", speedLabel: "Strength",
+    historyShow: "▾ view hourly wind (48h)", historyHide: "▴ hide hourly wind",
+    historyEmpty: "no historical data (manual mode)",
+    filterAll: "All",
+    riskBaixChip: "🔵 Low", riskMigChip: "🟡 Medium", riskAltChip: "🔴 High",
+    riskBaix: "LOW", riskMig: "MED", riskAlt: "HIGH",
+    noWindData: "No wind data yet. Try manual mode below.",
+    noBeachesFiltered: "No coves match this filter right now.",
+    shelteredTag: "enclosed cove · reduced exposure",
+    reportSeenBtn: "🪼 I saw a jellyfish", reportClearBtn: "✅ No jellyfish",
+    reportedSeen: h => `🪼 reported ${h} ago`, reportedClear: h => `✅ clear, reported ${h} ago`,
+    sharedTag: " · 🌐 shared", localTag: " · only on your phone",
+    overrideSeenNote: h => `Someone reported a jellyfish ${h} ago.`,
+    overrideClearNote: h => ` (Someone reported it clear ${h} ago.)`,
+    noteManualCalm: "Very light wind: little jellyfish transport in these conditions.",
+    noteManualOnshoreSheltered: "Onshore wind, but the cove offers some shelter; keep an eye out anyway.",
+    noteManualOnshore: "Wind is blowing toward the cove: conditions favour jellyfish arriving.",
+    noteManualOffshore: "Offshore or crosswind: not favourable right now.",
+    noteResidual: "Current wind is light, but it blew onshore hours/days ago — jellyfish may still be lingering.",
+    noteLiveOnshoreSheltered: "Onshore wind and the cove isn't fully sheltered; jellyfish likely.",
+    noteLiveOnshore: "Wind is blowing straight into the cove: conditions favour jellyfish arriving.",
+    noteLiveAccum: "Onshore wind has built up over the last hours. Real risk even if it eases now.",
+    noteLiveCalm: "No sustained onshore wind toward this cove, now or in recent hours.",
+    seaTempHigh: "warm water · high jellyfish season",
+    seaTempMid: "mild water · moderate jellyfish season",
+    seaTempLow: "cold water · low jellyfish season",
+    footer: `Estimate based on wind and <b>surface sea current</b> (<span style="font-family:'JetBrains Mono',monospace">Open-Meteo</span>), not direct jellyfish observation. An <b>offshore</b> flow (toward the sea) lowers the risk; an <b>onshore</b> flow raises it. Always check the flag or lifeguard on site.`,
+    aidTitle: "🩹 What to do if a jellyfish stings you",
+    aidSteps: [
+      "Get out of the water calmly, without running or swimming fast.",
+      "Don't scratch or rub the area, not even with a towel or sand — that fires off more stinging cells.",
+      "Rinse with <b>sea water</b> — never fresh water, which makes remaining cells fire even more.",
+      "Remove any tentacle remains with tweezers, a card, or a protected hand (never bare-handed).",
+      "Apply cold (a plastic bag with ice, never ice directly on the skin) for about 15 minutes, without rubbing."
+    ],
+    aidDont: `<b>Don't apply:</b> vinegar, ammonia, urine, alcohol, or sand. Contrary to popular belief, vinegar doesn't help with common Mediterranean jellyfish and can sometimes make it worse.`,
+    aidWarn: `⚠️ Seek medical attention (or call <b>112</b>) if there's difficulty breathing, swelling of the face/throat, intense dizziness, very extensive stings, or if it affects a young child or someone allergic. This information is general guidance and doesn't replace medical care.`,
+    speciesTitle: "🎏 Jellyfish in this area"
+  }
+};
+
+const SPECIES = [
+  {color:"#E15D50", latin:"Pelagia noctiluca",
+    name:{ca:"Medusa lluminosa", es:"Medusa luminiscente", en:"Mauve stinger"},
+    badge:{ca:"més comuna i la que pica", es:"más común y la que pica", en:"most common, the one that stings"},
+    badgeColor:"#E15D50",
+    desc:{
+      ca:"Rosada o violàcia, uns 10 cm. És la responsable de la gran majoria de picades a Menorca, sobretot en anys secs i càlids. Picada dolorosa però no perillosa en adults sans.",
+      es:"Rosada o violácea, unos 10 cm. Es la responsable de la gran mayoría de picaduras en Menorca, sobre todo en años secos y cálidos. Picadura dolorosa pero no peligrosa en adultos sanos.",
+      en:"Pink or purplish, about 10 cm. Responsible for most stings in Menorca, especially in dry, warm years. Painful sting but not dangerous for healthy adults."
+    }},
+  {color:"#2E86DE", latin:"Cotylorhiza tuberculata",
+    name:{ca:"Ou ferrat", es:"Huevo frito", en:"Fried egg jellyfish"},
+    badge:{ca:"gairebé inofensiva", es:"casi inofensiva", en:"nearly harmless"},
+    badgeColor:"#2E86DE",
+    desc:{
+      ca:"Groguenca amb el centre marró, forma de cúpula grossa. Molt vistosa però la seva picada amb prou feines es nota.",
+      es:"Amarillenta con el centro marrón, forma de cúpula grande. Muy vistosa pero su picadura apenas se nota.",
+      en:"Yellowish with a brown centre, large dome shape. Very eye-catching but its sting is barely noticeable."
+    }},
+  {color:"#2E86DE", latin:"Rhizostoma pulmo",
+    name:{ca:"Aigua cuallada", es:"Aguacuajada", en:"Barrel jellyfish"},
+    badge:{ca:"lleu", es:"leve", en:"mild"},
+    badgeColor:"#2E86DE",
+    desc:{
+      ca:"Blanca-blavosa, pot ser molt grossa (fins 40-90 cm), però la seva picada sol ser lleu o gairebé imperceptible.",
+      es:"Blanquiazulada, puede ser muy grande (hasta 40-90 cm), pero su picadura suele ser leve o casi imperceptible.",
+      en:"Whitish-blue, can be quite large (40-90 cm), but its sting is usually mild or barely noticeable."
+    }},
+  {color:"#F2B33D", latin:"Velella velella",
+    name:{ca:"Barqueta de Sant Pere", es:"Barquito de San Pedro", en:"By-the-wind sailor"},
+    badge:{ca:"no és medusa", es:"no es medusa", en:"not a jellyfish"},
+    badgeColor:"#9C6A1E",
+    desc:{
+      ca:"Petita (uns 5 cm), blava, amb una \"vela\" transparent que sobresurt de l'aigua. Sol arribar en grans quantitats empesa pel vent. Picada molt lleu.",
+      es:"Pequeña (unos 5 cm), azul, con una \"vela\" transparente que sobresale del agua. Suele llegar en grandes cantidades empujada por el viento. Picadura muy leve.",
+      en:"Small (about 5 cm), blue, with a clear \"sail\" sticking out of the water. Often arrives in large numbers pushed by the wind. Very mild sting."
+    }},
+  {color:"#E15D50", latin:"Carybdea marsupialis",
+    name:{ca:"Cubomedusa", es:"Cubomedusa", en:"Box jellyfish"},
+    badge:{ca:"rara, més dolorosa", es:"rara, más dolorosa", en:"rare, more painful"},
+    badgeColor:"#E15D50",
+    desc:{
+      ca:"Petita i gairebé transparent, en forma de cub — difícil de veure. Poc freqüent, però la picada és més intensa que la de la Pelagia.",
+      es:"Pequeña y casi transparente, en forma de cubo — difícil de ver. Poco frecuente, pero la picadura es más intensa que la de la Pelagia.",
+      en:"Small and nearly transparent, cube-shaped — hard to spot. Uncommon, but its sting is more intense than Pelagia's."
+    }}
+];
+
+function t(key){ return (I18N[LANG] && I18N[LANG][key] !== undefined) ? I18N[LANG][key] : I18N.ca[key]; }
+
+function renderLangSwitch(elId){
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.innerHTML = ["ca","es","en"].map(l =>
+    `<button class="lang-btn ${l===LANG?'active':''}" data-lang="${l}">${l.toUpperCase()}</button>`
+  ).join("");
+  el.querySelectorAll(".lang-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=> setLang(btn.dataset.lang));
+  });
+}
+
+function renderFirstAidContent(){
+  const el = document.getElementById("firstAidContent");
+  if (!el) return;
+  const steps = t("aidSteps").map(s => `<li>${s}</li>`).join("");
+  el.innerHTML = `
+    <ol class="steps-list">${steps}</ol>
+    <div class="dont-box">${t("aidDont")}</div>
+    <div class="warn-box">${t("aidWarn")}</div>
+  `;
+}
+
+function renderSpeciesContent(){
+  const el = document.getElementById("speciesContent");
+  if (!el) return;
+  el.innerHTML = SPECIES.map(s => `
+    <div class="species-card">
+      <div class="species-dot" style="background:${s.color};"></div>
+      <div>
+        <div class="species-name">${s.name[LANG]} <span class="species-badge" style="background:${s.badgeColor}22; color:${s.badgeColor};">${s.badge[LANG]}</span></div>
+        <div class="species-latin">${s.latin}</div>
+        <div class="species-desc">${s.desc[LANG]}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function applyStaticText(){
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  set("txt-home-sub", t("homeSub"));
+  set("txt-home-map-title", t("homeMapTitle"));
+  set("txt-home-map-sub", t("homeMapSub"));
+  set("txt-home-aid-title", t("homeAidTitle"));
+  set("txt-home-aid-sub", t("homeAidSub"));
+  set("txt-home-species-title", t("homeSpeciesTitle"));
+  set("txt-home-species-sub", t("homeSpeciesSub"));
+  set("txt-back-map", t("backHome"));
+  set("txt-back-aid", t("backHome"));
+  set("txt-back-species", t("backHome"));
+  set("txt-map-eyebrow", t("mapEyebrow"));
+  set("txt-map-sub", t("mapSub"));
+  set("retryBtn", t("refresh"));
+  set("txt-manual-title", t("manualTitle"));
+  set("txt-dir-label", t("dirLabel"));
+  set("txt-speed-label", t("speedLabel"));
+  set("txt-footer", t("footer"));
+  set("txt-aid-title", t("aidTitle"));
+  set("txt-species-title", t("speciesTitle"));
+  const histBtn = document.getElementById("historyToggle");
+  if (histBtn){
+    const showing = document.getElementById("historyPanel").style.display === "block";
+    histBtn.textContent = showing ? t("historyHide") : t("historyShow");
+  }
+  renderFirstAidContent();
+  renderSpeciesContent();
+  renderLangSwitch("langSwitchHome");
+  renderLangSwitch("langSwitchMap");
+}
+
+function setLang(lang){
+  LANG = lang;
+  try{ localStorage.setItem("aiguaneta_lang", lang); }catch(e){}
+  applyStaticText();
+  if (WIND){ updateCompassUI(); renderFilters(); renderList(); }
+}
+
+
 // "coast" holds the municipality name — filters and cards read straight from it.
 // dir = compass degree the cove opens toward (the "onshore" direction for that cove)
 // sheltered = enclosed cove / narrow inlet / harbour-like, reduces jellyfish transport
@@ -1371,9 +1621,9 @@ function computeAccumulatedRisk(beach){
 }
 
 function riskLabel(score){
-  if (score >= 0.5) return {cls:"alt", text:"ALT"};
-  if (score >= 0.25) return {cls:"mig", text:"MIG"};
-  return {cls:"baix", text:"BAIX"};
+  if (score >= 0.5) return {cls:"alt", text:t("riskAlt")};
+  if (score >= 0.25) return {cls:"mig", text:t("riskMig")};
+  return {cls:"baix", text:t("riskBaix")};
 }
 
 const MAP_COLORS = {alt:"#E15D50", mig:"#F2B33D", baix:"#2E86DE"};
@@ -1479,12 +1729,12 @@ function beachRiskInfo(b){
   // A recent user report is ground truth and overrides the model.
   const rep = reportInfo(b.name);
   if (rep && rep.type === "seen"){
-    risk = {cls:"alt", text:"ALT"};
-    note = `Algú ha reportat medusa fa ${formatHoursAgo(rep.hours)}.`;
+    risk = {cls:"alt", text:t("riskAlt")};
+    note = t("overrideSeenNote")(formatHoursAgo(rep.hours));
   } else if (rep && rep.type === "clear" && risk.cls !== "baix"){
     // Soften but don't fully override a model that says risk — someone saying
     // "no n'hi havia" an hour ago doesn't cancel a strong onshore push.
-    note += ` (Algú va reportar-hi sense medusa fa ${formatHoursAgo(rep.hours)}.)`;
+    note += t("overrideClearNote")(formatHoursAgo(rep.hours));
   }
   return {score: accScore, risk, note, report: rep};
 }
@@ -1507,23 +1757,19 @@ function updateMapColors(){
 function riskNote(accScore, instantScore, diff, windSpeed, beach){
   const residual = accScore - instantScore; // how much is "leftover" from earlier hours
   if (MODE === "manual"){
-    if (windSpeed < 5) return "Vent molt fluix: poc transport de medusa amb aquestes condicions.";
-    if (diff <= 45) return beach.sheltered
-      ? "Vent de cara però la cala protegeix una mica; vigila igualment."
-      : "Vent bufa cap a la cala: condicions favorables a l'arribada de medusa.";
-    return "Vent de component terral o creuat: condicions poc favorables ara mateix.";
+    if (windSpeed < 5) return t("noteManualCalm");
+    if (diff <= 45) return beach.sheltered ? t("noteManualOnshoreSheltered") : t("noteManualOnshore");
+    return t("noteManualOffshore");
   }
   // live mode, with memory of the last ~40h
   if (residual > 0.12 && instantScore < 0.2){
-    return "El vent d'ara és fluix, però hores/dies enrere ha bufat cap a la cala: encara pot quedar medusa arrossegada.";
+    return t("noteResidual");
   }
   if (diff <= 45 && windSpeed >= 5){
-    return beach.sheltered
-      ? "Vent de cara i cala poc protegida del tot; probable arribada de medusa."
-      : "Vent bufa directament cap a la cala: condicions favorables a l'arribada de medusa.";
+    return beach.sheltered ? t("noteLiveOnshoreSheltered") : t("noteLiveOnshore");
   }
-  if (accScore >= 0.25) return "Acumulació de vent de cara les últimes hores. Risc real encara que ara mateix amaini.";
-  return "Ni ara ni en les últimes hores hi ha hagut vent de cara sostingut cap a la cala.";
+  if (accScore >= 0.25) return t("noteLiveAccum");
+  return t("noteLiveCalm");
 }
 
 function miniCompassSVG(beachDir, windDir){
@@ -1552,7 +1798,7 @@ let MODE = "live"; // "live" or "manual"
 function renderFilters(){
   const uniq = ["Totes", ...new Set(BEACHES.map(b=>b.coast))];
   const el = document.getElementById("filters");
-  el.innerHTML = uniq.map(c => `<button class="filter-btn ${c===currentFilter?'active':''}" data-c="${c}">${c}</button>`).join("");
+  el.innerHTML = uniq.map(c => `<button class="filter-btn ${c===currentFilter?'active':''}" data-c="${c}">${c==="Totes" ? t("filterAll") : c}</button>`).join("");
   el.querySelectorAll(".filter-btn").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       currentFilter = btn.dataset.c;
@@ -1562,10 +1808,10 @@ function renderFilters(){
   });
 
   const riskLevels = [
-    {key:"Totes", label:"Totes"},
-    {key:"baix", label:"🔵 Baix"},
-    {key:"mig", label:"🟡 Mig"},
-    {key:"alt", label:"🔴 Alt"},
+    {key:"Totes", label:t("filterAll")},
+    {key:"baix", label:t("riskBaixChip")},
+    {key:"mig", label:t("riskMigChip")},
+    {key:"alt", label:t("riskAltChip")},
   ];
   const riskEl = document.getElementById("riskFilters");
   riskEl.innerHTML = riskLevels.map(r => `<button class="filter-btn ${r.key===currentRiskFilter?'active':''}" data-r="${r.key}">${r.label}</button>`).join("");
@@ -1582,7 +1828,7 @@ function renderList(){
   updateMapColors();
   const listEl = document.getElementById("list");
   if (!WIND){
-    listEl.innerHTML = `<div class="err">Encara no hi ha dades de vent. Prova el mode manual de sota.</div>`;
+    listEl.innerHTML = `<div class="err">${t("noWindData")}</div>`;
     return;
   }
   let filtered = BEACHES.filter(b => currentFilter==="Totes" || b.coast===currentFilter);
@@ -1595,7 +1841,7 @@ function renderList(){
   filtered.sort((a,b) => a.info.score - b.info.score);
 
   if (!filtered.length){
-    listEl.innerHTML = `<div class="err">Cap cala amb aquest filtre ara mateix.</div>`;
+    listEl.innerHTML = `<div class="err">${t("noBeachesFiltered")}</div>`;
     return;
   }
 
@@ -1603,9 +1849,9 @@ function renderList(){
     const {risk, note, report} = info;
     const safeName = b.name.replace(/'/g, "\\'");
     const isShared = window.__fbReports && window.__fbReports.some(r => r.beach === b.name);
-    const shareTag = isShared ? " · 🌐 compartit" : " · només al teu mòbil";
+    const shareTag = isShared ? t("sharedTag") : t("localTag");
     const reportNote = report
-      ? `<div class="report-note">${report.type === "seen" ? "🪼 reportat fa " + formatHoursAgo(report.hours) : "✅ net reportat fa " + formatHoursAgo(report.hours)}${shareTag}</div>`
+      ? `<div class="report-note">${report.type === "seen" ? t("reportedSeen")(formatHoursAgo(report.hours)) : t("reportedClear")(formatHoursAgo(report.hours))}${shareTag}</div>`
       : "";
     return `
     <div class="card">
@@ -1619,11 +1865,11 @@ function renderList(){
           <div class="badge ${risk.cls}">${risk.text}</div>
         </div>
         <div class="card-note">${note}</div>
-        ${b.sheltered ? `<div class="sheltered-tag">cala tancada · exposició reduïda</div>` : ``}
+        ${b.sheltered ? `<div class="sheltered-tag">${t("shelteredTag")}</div>` : ``}
         ${reportNote}
         <div class="report-row">
-          <button class="report-btn seen" onclick="addReport('${safeName}','seen')">🪼 He vist medusa</button>
-          <button class="report-btn clear" onclick="addReport('${safeName}','clear')">✅ Sense medusa</button>
+          <button class="report-btn seen" onclick="addReport('${safeName}','seen')">${t("reportSeenBtn")}</button>
+          <button class="report-btn clear" onclick="addReport('${safeName}','clear')">${t("reportClearBtn")}</button>
         </div>
       </div>
     </div>`;
@@ -1633,23 +1879,23 @@ function renderList(){
 function seaTempWarning(temp){
   if (temp == null) return "";
   let msg;
-  if (temp >= 25) msg = "aigua càlida · temporada alta de medusa";
-  else if (temp >= 22) msg = "aigua temperada · temporada mitjana de medusa";
-  else msg = "aigua freda · temporada baixa de medusa";
+  if (temp >= 25) msg = t("seaTempHigh");
+  else if (temp >= 22) msg = t("seaTempMid");
+  else msg = t("seaTempLow");
   return `<div class="mode-tag" style="background:rgba(242,179,61,0.18); color:#F2C176; margin-top:6px;">🌡️ ${temp.toFixed(1)}°C · ${msg}</div>`;
 }
 
 function updateCompassUI(){
   document.getElementById("needle").style.transform = `rotate(${WIND.dir}deg)`;
   const modeTag = MODE === "manual"
-    ? `<div class="mode-tag manual">vent manual</div>`
-    : `<div class="mode-tag">vent en directe</div>`;
+    ? `<div class="mode-tag manual">${t("manualTag")}</div>`
+    : `<div class="mode-tag">${t("liveTag")}</div>`;
   const currentLine = CURRENT
-    ? `<div class="cardinal" style="font-size:13px; color:#9FC2CF; margin-top:4px;">corrent: ${toCardinal(CURRENT.dir)} · ${CURRENT.speed.toFixed(2)} m/s</div>`
+    ? `<div class="cardinal" style="font-size:13px; color:#9FC2CF; margin-top:4px;">${t("currentLabel")}: ${toCardinal(CURRENT.dir)} · ${CURRENT.speed.toFixed(2)} m/s</div>`
     : "";
   document.getElementById("windReadout").innerHTML = `
     <div class="deg">${Math.round(WIND.speed)}<span class="unit"> km/h</span></div>
-    <div class="label">vent actual</div>
+    <div class="label">${t("windActual")}</div>
     <div class="cardinal">${toCardinal(WIND.dir)} · ${Math.round(WIND.dir)}°</div>
     ${currentLine}
     ${modeTag}
@@ -1717,8 +1963,8 @@ async function fetchWithTimeout(url, ms){
 
 async function loadWind(retries){
   retries = retries === undefined ? 2 : retries;
-  document.getElementById("windReadout").innerHTML = `<div class="label">carregant vent…</div>`;
-  document.getElementById("list").innerHTML = `<div class="loading"><div class="spinner"></div>Consultant el vent en temps real…</div>`;
+  document.getElementById("windReadout").innerHTML = `<div class="label">${t("loadingWind")}</div>`;
+  document.getElementById("list").innerHTML = `<div class="loading"><div class="spinner"></div>${t("loadingList")}</div>`;
   try{
     const res = await fetchWithTimeout(
       "https://api.open-meteo.com/v1/forecast?latitude=39.97&longitude=4.05&current=wind_speed_10m,wind_direction_10m&hourly=wind_speed_10m,wind_direction_10m&past_days=2&forecast_days=1&wind_speed_unit=kmh&timezone=Europe%2FMadrid",
@@ -1758,7 +2004,7 @@ async function loadWind(retries){
       return;
     }
     // Fall back to manual entry so the app stays usable
-    document.getElementById("windReadout").innerHTML = `<div class="label">sense connexió — usa el vent manual ↓</div>`;
+    document.getElementById("windReadout").innerHTML = `<div class="label">${t("noConnection")}</div>`;
     setManualMode();
   }
 }
@@ -1805,13 +2051,13 @@ document.getElementById("historyToggle").addEventListener("click", ()=>{
   const btn = document.getElementById("historyToggle");
   const showing = panel.style.display !== "none";
   panel.style.display = showing ? "none" : "block";
-  btn.textContent = showing ? "▾ veure vent per hores (48h)" : "▴ amagar vent per hores";
+  btn.textContent = showing ? t("historyShow") : t("historyHide");
 });
 
 function renderHistoryPanel(){
   const panel = document.getElementById("historyPanel");
   if (!WIND_HISTORY.length){
-    panel.innerHTML = "sense dades històriques (mode manual)";
+    panel.innerHTML = t("historyEmpty");
     return;
   }
   // Most recent first, so what matters most is at the top.
@@ -1851,6 +2097,7 @@ function showScreen(id){
   }
 }
 
+applyStaticText();
 initManualControls();
 try{ initMap(); }catch(e){ console.warn("Mapa no disponible:", e); }
 loadWind();
